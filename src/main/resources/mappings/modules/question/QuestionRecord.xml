@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.que.dao.QuestionRecordDao">
+	
+	<!-- 查询问题信息表中的字段 -->
+	<sql id="selectQuestionForm">
+		 p.project_name AS 'pms.projectName',
+		 u.name AS 'user.name',
+		 q.id AS 'id',
+		 q.project_id AS 'projectId',
+		 q.problem_name AS 'problemName',
+		 q.problem_type AS 'problemType',
+		 q.problem_source AS 'problemSource',
+		 q.problem_state AS 'problemState',
+		 q.response_id AS 'leaderId',
+		 q.start_time AS 'submitTime',
+		 q.end_time AS 'dueTime',
+		 q.problem_urgent AS 'problemUrgent',
+		 q.problem_describe AS 'problemDescribe',
+		 q.appendix_id AS 'attachId',
+		 q.attach_address AS 'attachAddress',
+		 q.create_by AS 'createdBy',
+		 q.create_date AS 'createdTime',
+		 q.update_by AS 'updateBy',
+		 q.update_date AS 'updateTime',
+		 q.del_flag AS 'deleteMark'
+    </sql>
+	
+	<!-- 问题信息表与项目主表的关联条件 -->
+	<sql id="joinOn">
+		LEFT JOIN pm_project_main p ON q.project_id = p.id
+		LEFT JOIN sys_user u ON q.response_id = u.id
+	</sql>	
+     
+   <!-- 根据项目名称和问题状态查找问题列表 -->
+   <select id="findQuestionByProjectNameAndQuestionState" 
+   				resultType="QuestionRecord"  parameterType="QuestionRecord">
+  		 SELECT 
+	   		     <include refid="selectQuestionForm"/>
+	   	FROM 
+	   			pm_problem_information q
+	   			<include refid="joinOn"/>
+	   	WHERE   
+	   			q.del_flag!= '1'			
+	   			<if test="pms.projectName!=null and pms.projectName!=''">
+	   				  and p.project_name like CONCAT('%', #{pms.projectName}, '%') 
+	   			</if>
+	   			<if test="problemState!=null and problemState!=''">
+	   				and q.problem_state=#{problemState}
+	   			</if>	 				
+		ORDER BY q.create_date DESC
+   </select>
+   
+   <select id="findList" 
+   				resultType="QuestionRecord"
+   				parameterType="QuestionRecord">
+  		 SELECT 
+	   		     <include refid="selectQuestionForm"/>
+	   	FROM 
+	   			pm_problem_information q
+	   			<include refid="joinOn"/>
+	   	WHERE   
+	   			q.del_flag!= '1'			
+	   			<if test="pms.projectName!=null and pms.projectName!=''">
+	   				  and p.project_name like CONCAT('%', #{pms.projectName}, '%') 
+	   			</if>
+	   			<if test="problemState!=null and problemState!=''">
+	   				and q.problem_state=#{problemState}
+	   			</if>	 				
+		ORDER BY q.create_date DESC
+   </select>
+   
+   <!-- 通过问题id查找问题 -->
+   <select id="findQuestionByQuestionId" resultType="QuestionRecord">
+  		 SELECT 
+	   			<include refid="selectQuestionForm"/>
+	   	FROM 
+	   			pm_problem_information q
+	   			<include refid="joinOn"/>
+	   	WHERE
+	   			q.id=#{id}	and 	 q.del_flag != '1'		
+   </select>
+   
+   <!-- 根据问题id删除问题（添加删除标识） -->
+	<update id="deleteQuestionByQuestionId"  parameterType="String">
+		UPDATE 
+				pm_problem_information
+		SET 
+				del_flag = '1'
+		WHERE 
+				id = #{questionId}
+	</update> 
+	
+	<!-- 添加问题数据 -->
+	<insert id="insertQuestion" parameterType="QuestionRecord">
+		  INSERT INTO pm_problem_information(
+			 id,
+			 project_id,
+			 problem_name,
+			 problem_type,
+			 problem_source,
+			 problem_state,
+			 response_id,
+			 start_time,
+			 end_time,
+			 problem_urgent,
+			 problem_describe,
+			 appendix_id,
+			 attach_address,
+			 create_by,
+			 create_date,
+			 del_flag
+	   )VALUES(
+	   		#{id},
+	   		#{projectId},
+	   		#{problemName},
+	   		#{problemType},
+	   		#{problemSource},
+	   		#{problemState},
+	   		#{leaderId},
+	   		#{submitTime},
+	   		#{dueTime},
+	   		#{problemUrgent},
+	   		#{problemDescribe},
+	   		#{attachId},
+	   		#{attachAddress},
+	   		#{createBy.id},
+	   		now(),
+	   		'0'
+	   )
+   </insert>
+   
+   <!-- 修改问题数据 -->
+   <update id="updateQuestionByQuestion" parameterType="QuestionRecord">
+		UPDATE 
+				pm_problem_information
+		SET 
+				<if test="problemName!=null and problemName!=''">
+					problem_name=#{problemName},
+				</if>
+				<if test="problemState!=null and problemState!=''">
+					problem_state=#{problemState},
+				</if>
+				<if test="leaderId!=null and leaderId!=''">
+					response_id=#{leaderId},
+				</if>
+				<if test="submitTime!=null and submitTime!=''">
+					start_time=#{submitTime},
+				</if>
+				<if test="dueTime!=null and dueTime!=''">
+					end_time=#{dueTime},
+				</if>
+				<if test="problemUrgent!=null and problemUrgent!=''">
+					problem_urgent=#{problemUrgent},
+				</if>
+				<if test="problemType!=null and problemType!=''">
+					problem_type=#{problemType},
+				</if>
+				<if test="problemSource!=null and problemSource!=''">
+					problem_source=#{problemSource},
+				</if>
+				<if test="problemDescribe!=null and problemDescribe!=''">
+	   				problem_describe=#{problemDescribe},
+	   			</if>
+	   			<if test="attachId!=null and attachId!=''">
+					appendix_id=#{attachId},
+				</if>
+				<if test="attachAddress!=null and attachAddress!=''">
+					attach_address=#{attachAddress},
+				</if>
+		   		update_date = now(),
+		   		update_by = #{updateBy.id}
+	   	WHERE 
+	   			id=#{id}
+	  </update>
+	  
+   <!-- 通过项目名查找项目id -->
+   <select id="findProjectIdByProjectName" parameterType="String" resultType="String" >
+  		 SELECT 
+	   			id
+	   	FROM 
+	   			pm_project_main
+	   	WHERE
+	   			project_name=#{projectName}
+   </select>
+   
+   <!-- 查找所有项目 -->
+   <select id="findAllProjectName"  resultType="String" >
+  		 SELECT 
+	   			project_name
+	   	FROM 
+	   			pm_project_main	
+   </select>
+   
+   <!-- 通过附件名字查询附件地址 -->
+	<select id="findAttachAddressByAttachId" resultType="String" parameterType="String">
+		SELECT 
+				attach_address
+		FROM 
+				pm_problem_information
+		WHERE 
+				appendix_id =#{attachId}
+	</select>
+	
+	<!-- 通过附件地址查询附件名字 -->
+	<select id="findAttachIdByAttachAddress" resultType="String" parameterType="String">
+		SELECT 
+				appendix_id
+		FROM 
+				pm_problem_information
+		WHERE 
+				attach_address =#{attachAddress}
+	</select>
+</mapper>

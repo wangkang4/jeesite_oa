@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oanotify.dao.NotifyTypeDao">
+    
+	<select id="get" resultType="NotifyType">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE id = #{id}
+	</select>
+	
+	<select id="findList" resultType="NotifyType">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="type != null and type != ''">
+			AND type = #{type}
+		</if>
+		<if test="description != null and description != ''">
+			AND description LIKE 
+					<if test="dbName == 'oracle'">'%'||#{description}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{description}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{description}, '%')</if>
+		</if>
+		ORDER BY type, sort, update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="NotifyType">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY type, sort, update_date DESC
+	</select>
+	
+	<select id="findTypeList" resultType="string">
+		SELECT 
+			type 
+		FROM sys_dict 
+		WHERE del_flag = #{DEL_FLAG_NORMAL} 
+		GROUP BY type
+		ORDER BY type
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_dict(
+		id,
+			value, 
+			label, 
+			type, 
+			description, 
+			sort, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id},
+			#{value}, 
+			#{label}, 
+			#{type}, 
+			#{description}, 
+			#{sort}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_dict SET 
+			value = #{value}, 
+			label = #{label}, 
+			type = #{type}, 
+			description = #{description}, 
+			sort = #{sort}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_dict SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<insert id="addType" parameterType="NotifyType">
+		INSERT INTO sys_dict(
+			id, 
+			value, 
+			label, 
+			type,
+			description, 
+			sort,
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{value}, 
+			#{label}, 
+			#{type}, 
+			#{description}, 
+			#{sort},
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<select id="getTypeById" resultType="NotifyType">
+		select id as id,value as value,label as label,type as type,description as description,sort as sort from sys_dict where id=#{id}
+	</select>
+	
+	<update id="updateNotifyType" parameterType="NotifyType">
+		update sys_dict <if test="dict.value!=null">value = #{value}, </if>
+		<if test="notifyType.label!=null">label = #{label},</if>
+		<if test="notifyType.type!=null">type = #{type}, </if>
+		<if test="notifyType.description!=null">description = #{description},</if>
+		<if test="notifyType.sort!=null">sort = #{sort}</if>
+	
+	 where id=#{notifyType.id}
+	</update>
+	
+</mapper>

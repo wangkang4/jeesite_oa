@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.history.dao.HistorySummaryDao">
+
+	<sql id="activityLeave2Columns">
+		a.id,
+		a.proc_ins_id,
+		u.id AS "user.id", 
+		u.name AS "user.name", 
+		o.id AS "office.id", 
+		o.name AS "office.name",
+		a.start_time,
+		a.end_time,
+		a.for_money,  
+		a.reason,
+		a.cost_type,
+		a.reason_title,
+		a.address,
+		a.pr_text,
+		a.leader_text,
+		a.leadertwo_text,
+		a.manager_text,
+		a.prthree_text,
+		a.prfour_text,
+		a.prtwo_text,
+		a.create_by AS "createBy.id", 
+		a.create_date, 
+		a.update_by AS "updateBy.id", 
+		a.update_date, 
+		a.remarks, 
+		a.del_flag,
+		a.sale_detail_id,
+		a.statu,
+		a.status
+	</sql>
+
+	<sql id="activityLeave2Joins">
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON o.id=a.office_id
+    </sql>
+    
+   	<select id="getSaleById" resultType="GetSale" parameterType="string">
+   		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+			<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = "0" and a.id = #{id}
+   	</select>
+
+	<select id="findList" resultType="GetSale">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+			<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+			<!-- and a.statu = '审核通过' -->
+			and a.statu in("审核通过","已付账")
+		<if test="user != null and user.id != null and user.id != ''">
+			and a.user_id = #{user.id}
+		</if>
+		<if test="st != null and st != ''">
+			and a.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and a.create_date &lt; #{et}
+		</if>
+		ORDER BY a.create_date DESC
+	</select>
+	<select id="downList" resultType="DownGetSale" parameterType="GetSale">
+		SELECT su.name AS 'userName',
+			so.name AS 'officeName',
+			sa.`name` AS 'areaName',
+			ed.detail_date AS 'detailDate',
+			ed.cost_description AS 'costDescription',
+			ed.amount_money AS 'amountMoney',
+			ed.information AS 'information',
+			ed.project_name AS 'projectName'
+			<!--gs.reason_title AS 'reasonTitle'-->
+		FROM expense_detail ed
+		LEFT JOIN get_sale gs on gs.sale_detail_id = ed.sale_detail_id
+		LEFT JOIN sys_user su on gs.user_id = su.id
+		LEFT JOIN sys_office so on gs.office_id = so.id
+		LEFT JOIN sys_area sa on so.area_id = sa.id
+		WHERE gs.del_flag = '0'
+		and gs.statu in("审核通过","已付账")
+		<if test="user != null and user.id != null and user.id != ''">
+			and gs.user_id = #{user.id}
+		</if>
+		<if test="st != null and st != ''">
+			and gs.update_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and gs.update_date &lt; #{et}
+		</if>
+		ORDER BY gs.update_date DESC
+	</select>
+	<!-- 该SQL查询每个人每种报销小类的花费总和 -->
+	<select id="selectAmount" resultType="GetSaleSummary">
+		select t.id AS "getSaleUser.id",
+		 sum(dayExpenseOne) AS "dayExpenseOne",
+	     sum(oneExpenseOne) AS "oneExpenseOne",
+		 sum(oneExpenseTwo) AS "oneExpenseTwo",
+		 sum(oneExpenseThree) AS "oneExpenseThree",
+		 sum(oneExpenseFour) AS "oneExpenseFour",
+		 sum(oneExpenseFive) AS "oneExpenseFive",
+		 sum(oneExpenseSix) AS "oneExpenseSix",
+		 sum(twoExpenseOne) AS "twoExpenseOne",
+		 sum(threeExpenseOne) AS "threeExpenseOne",
+		 sum(fourExpenseOne) AS "fourExpenseOne",
+		 sum(fourExpenseTwo) AS "fourExpenseTwo",
+		 sum(fourExpenseThree) AS "fourExpenseThree",
+		 sum(fourExpenseFour) AS "fourExpenseFour",
+		 sum(fourExpenseFive) AS "fourExpenseFive",
+		 sum(fiveExpenseOne) AS "fiveExpenseOne",
+		 sum(fiveExpenseTwo) AS "fiveExpenseTwo",
+		 sum(fiveExpenseThree) AS "fiveExpenseThree",
+		 sum(fiveExpenseFour) AS "fiveExpenseFour",
+		 sum(fiveExpenseFive) AS "fiveExpenseFive",
+		<!-- sum(sixExpenseOne) AS "sixExpenseOne",
+		 sum(sixExpenseTwo) AS "sixExpenseTwo",
+		 sum(sixExpenseThree) AS "sixExpenseThree",
+		 sum(sixExpenseFour) AS "sixExpenseFour",-->
+		 
+		 sum(sixExpenseOne) AS "sixExpenseOne",
+		 sum(sevenExpenseOne) AS "sevenExpenseOne",
+		 sum(eightExpenseOne) AS "eightExpenseOne",
+		 sum(nineExpenseOne) AS "nineExpenseOne",
+		 sum(tenExpenseOne) AS "tenExpenseOne",
+		 sum(elevenExpenseOne) AS "elevenExpenseOne",
+		 sum(elevenExpenseTwo) AS "elevenExpenseTwo",
+		 sum(elevenExpenseThree) AS "elevenExpenseThree",
+		 sum(elevenExpenseFour) AS "elevenExpenseFour",
+		 sum(twelveExpenseOne) AS "twelveExpenseOne"
+from(		
+select su.id AS "id", 
+		sum(case ed.cost_description when "城际交通费" then day else 0 end) AS 'dayExpenseOne',
+		sum(case ed.cost_description when "办公用品" then amount_money else 0 end) AS 'oneExpenseOne',
+		sum(case ed.cost_description when "低值易耗品" then amount_money else 0 end) AS 'oneExpenseTwo',
+		sum(case ed.cost_description when "图书资料费" then amount_money else 0 end) AS 'oneExpenseThree',
+		sum(case ed.cost_description when "快递费" then amount_money else 0 end) AS 'oneExpenseFour',
+		sum(case ed.cost_description when "饮用水" then amount_money else 0 end) AS 'oneExpenseFive',
+		sum(case ed.cost_description when "其他办公费用" then amount_money else 0 end) AS 'oneExpenseSix',
+		sum(case ed.cost_description when "座机及网络费用" then amount_money else 0 end) AS 'twoExpenseOne',
+		sum(case ed.cost_description when "交通费" then amount_money else 0 end) AS 'threeExpenseOne',
+		sum(case ed.cost_description when "汽油费" then amount_money else 0 end) AS 'fourExpenseOne',
+		sum(case ed.cost_description when "过路过桥费" then amount_money else 0 end) AS 'fourExpenseTwo',
+		sum(case ed.cost_description when "汽车维修费" then amount_money else 0 end) AS 'fourExpenseThree',
+		sum(case ed.cost_description when "汽车保险费" then amount_money else 0 end) AS 'fourExpenseFour',
+		sum(case ed.cost_description when "其他汽车费用" then amount_money else 0 end) AS 'fourExpenseFive',
+		sum(case ed.cost_description when "城际交通费" then amount_money else 0 end) AS 'fiveExpenseOne',
+		sum(case ed.cost_description when "市内交通费" then amount_money else 0 end) AS 'fiveExpenseTwo',
+		sum(case ed.cost_description when "住宿费" then amount_money else 0 end) AS 'fiveExpenseThree',
+		sum(case ed.cost_description when "差旅补助" then amount_money else 0 end) AS 'fiveExpenseFour',
+		sum(case ed.cost_description when "其他差旅费用" then amount_money else 0 end) AS 'fiveExpenseFive',
+		<!--sum(case ed.cost_description when "专项会务费" then amount_money else 0 end) AS 'sixExpenseOne',
+		sum(case ed.cost_description when "专项业务招待费" then amount_money else 0 end) AS 'sixExpenseTwo',
+		sum(case ed.cost_description when "礼品费" then amount_money else 0 end) AS 'sixExpenseThree',
+		sum(case ed.cost_description when "其他专项费用" then amount_money else 0 end) AS 'sixExpenseFour',
+		-->
+		
+		sum(case ed.cost_description when "市场推广费" then amount_money else 0 end) AS 'sixExpenseOne',
+		
+		sum(case ed.cost_description when "维修费用" then amount_money else 0 end) AS 'sevenExpenseOne',
+		sum(case ed.cost_description when "会务费" then amount_money else 0 end) AS 'eightExpenseOne',
+		sum(case ed.cost_description when "业务招待餐饮费" then amount_money else 0 end) AS 'nineExpenseOne',
+		sum(case ed.cost_description when "员工培训费" then amount_money else 0 end) AS 'tenExpenseOne',
+		sum(case ed.cost_description when "员工加班餐费" then amount_money else 0 end) AS 'elevenExpenseOne',
+		sum(case ed.cost_description when "下午茶" then amount_money else 0 end) AS 'elevenExpenseTwo',
+		sum(case ed.cost_description when "团建费" then amount_money else 0 end) AS 'elevenExpenseThree',
+		sum(case ed.cost_description when "其他福利费用" then amount_money else 0 end) AS 'elevenExpenseFour',
+		sum(case ed.cost_description when "其他费用" then amount_money else 0 end) AS 'twelveExpenseOne'
+
+		from expense_detail ed 
+		LEFT JOIN get_sale gs on ed.sale_detail_id = gs.sale_detail_id
+		LEFT JOIN sys_user su on su.id = gs.user_id 
+		where gs.del_flag = "0" and gs.statu in("审核通过","已付账")
+		<if test="st != null and st != ''">
+			and gs.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and gs.create_date &lt; #{et}
+		</if>
+		GROUP BY ed.cost_description,su.id) t
+		GROUP BY t.id
+	</select>
+	
+</mapper>

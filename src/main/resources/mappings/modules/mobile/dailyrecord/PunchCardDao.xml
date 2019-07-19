@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mobile.dailyrecord.dao.PunchCardDao">
+	
+	<insert id="insertOnePCard">
+		INSERT INTO oa_punchcard(
+			id, 
+			user_id, 
+			punchdate,
+			punchtype, 
+			latitude, 
+			longitude, 
+			place, 
+			state, 
+			create_by, 
+			create_date, 
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{user.id}, 
+			#{punchDate}, 
+			#{punchType}, 
+			#{latitude}, 
+			#{longitude}, 
+			#{place}, 
+			#{state}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+
+	<update id="updateOnePCard">
+		update oa_punchcard set
+			punchdate = #{punchDate}
+		where id = #{id}
+	</update>
+
+	<select id="findPunchCards" parameterType="PunchCard" resultType="PunchCard">
+		select 
+			id,
+			user_id, 
+			punchdate,
+			punchtype, 
+			latitude, 
+			longitude, 
+			place, 
+			state, 
+			create_by, 
+			create_date, 
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		from oa_punchcard 
+		where user_id = #{user.id} and del_flag = 0
+		<if test=" startTime != null and startTime != ''">
+			<![CDATA[ and punchdate >= #{startTime}  ]]>
+		</if>
+		<if test="endTime != null and endTime != ''">
+		  	<![CDATA[ and punchdate < #{endTime}  ]]>
+		</if>
+		order by punchdate
+	</select>
+		
+	<select id="findPunchCard" parameterType="PunchCard" resultType="PunchCard">
+		select 
+			id,
+			user_id, 
+			punchdate,
+			punchtype, 
+			latitude, 
+			longitude, 
+			place, 
+			state, 
+			create_by, 
+			create_date, 
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		from oa_punchcard 
+		where user_id = #{user.id} and del_flag = 0
+		<if test=" startTime != null and startTime != ''">
+			<![CDATA[ and punchdate >= #{startTime}  ]]>
+		</if>
+		<if test="endTime != null and endTime != ''">
+		  	<![CDATA[ and punchdate < #{endTime}  ]]>
+		</if>
+	</select>
+
+</mapper>

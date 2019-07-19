@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.quit.dao.QuitDao">
+
+
+    <!-- 插入数据库操作 -->
+    <insert id="insert">
+		INSERT INTO tb_quit(
+			id,
+			user_id,
+			office_id,
+			apply_date,
+			quit_date,
+			position,
+			reason,
+			address,
+			statu,
+			prone_text,
+			prtwo_text,
+			prthree_text,
+			prfour_text,
+			prfive_text,
+			prsix_text,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		)VALUES(
+			#{id},
+			#{user.id},
+			#{office.id},
+			#{applyDate},
+			#{quitDate},
+			#{position},
+			#{reason},
+			#{address},
+			#{statu},
+			#{proneText},
+			#{prtwoText},
+			#{prthreeText},
+			#{prfourText},
+			#{prfiveText},
+			#{prsixText},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0'
+		)
+	</insert>
+
+    <sql id="quitColumns">
+		q.id,
+		q.user_id,
+		q.office_id,
+		q.apply_date AS 'applyDate',
+		q.quit_date AS 'quitDate',
+		q.position,
+		q.reason,
+		q.address,
+		q.statu,
+		q.prone_text AS 'proneText',
+		q.prtwo_text AS 'prtwoText',
+		q.prthree_text AS 'prthreeText',
+		q.prfour_text AS 'prfourText',
+		q.prfive_text AS 'prfiveText',
+		q.prsix_text AS 'prsixText',
+		q.create_by AS 'createBy.id',
+		sa.name AS 'createBy.Office.Area.name',
+		q.create_date AS 'createDate',
+		q.update_by AS 'updateBy.id',
+		q.update_date AS 'updateDate',	
+		q.del_flag AS 'delFlag',
+		q.proc_ins_id,
+		su.id AS 'user.id',
+		so.id AS 'office.id',
+		su.name AS 'user.name',
+		so.name AS 'office.name'
+	</sql>
+    <sql id="quitJoins">
+		JOIN sys_user su ON su.id=q.user_id
+		JOIN sys_office so ON so.id=q.office_id
+		JOIN sys_area sa ON so.area_id=sa.id
+	</sql>
+    <!-- 查询列表 -->
+    <select id="findList" resultType="Quit">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        <include refid="quitJoins"/>
+        WHERE q.del_flag = "0"
+        <if test="user != null and user.id != null and user.id != ''">
+            and su.id = #{user.id}
+        </if>
+        ORDER BY q.create_date desc
+    </select>
+    <!--行政人员查看所属区域申请列表 -->
+    <select id="findList2" resultType="Quit" parameterType="String">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        left JOIN sys_user su ON su.id = q.create_by
+        left JOIN sys_office so ON so.id = su.office_id
+        left JOIN sys_area sa ON sa.id = so.area_id
+        <where>
+            <choose>
+                <when test="name=='上海' or name=='杭州市' or name=='福州市' ">
+                    sa.name = '上海' or '杭州市' or '福州市'
+                </when>
+                <otherwise>
+                    sa.name = #{name}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <!--财务商务人员查看员工离职信息列表 -->
+    <select id="findList4" resultType="Quit" parameterType="String">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        left JOIN sys_user su ON su.id = q.create_by
+        left JOIN sys_office so ON so.id = su.office_id
+        left JOIN sys_area sa ON sa.id = so.area_id
+    </select>
+    <!-- 获取数据操作 -->
+    <select id="get" resultType="Quit">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        <include refid="quitJoins"/>
+        WHERE q.id=#{id}
+    </select>
+    <!-- 第一个审核人的意见插入 -->
+    <update id="updateProneText">
+		UPDATE tb_quit SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 第二个审核人的意见插入 -->
+    <update id="updatePrtwoText">
+		UPDATE tb_quit SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 第三个审核人的意见插入 -->
+    <update id="updatePrthreeText">
+		UPDATE tb_quit SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 第四个审核人的意见插入 -->
+    <update id="updatePrfourText">
+		UPDATE tb_quit SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 第五个审核人的意见插入 -->
+    <update id="updatePrfiveText">
+		UPDATE tb_quit SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 第六个审核人的意见插入 -->
+    <update id="updatePrsixText">
+		UPDATE tb_quit SET 
+			prfive_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+    <!-- 状态修改 -->
+    <update id="updateStatu">
+		UPDATE tb_quit SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+    <!-- 修改操作 -->
+    <update id="update">
+		UPDATE tb_quit SET
+			user_id=#{user.id},
+			office_id=#{office.id},
+			apply_date=#{applyDate},
+			quit_date=#{quitDate},
+			position=#{position},
+			reason=#{reason},
+			address=#{address},
+			statu=#{statu},
+			prone_text=#{proneText},
+			prtwo_text=#{prtwoText},
+			prthree_text=#{prthreeText},
+			prfour_text=#{prfourText},
+			prfive_text=#{prfiveText},
+			update_by=#{updateBy.id}, 
+			update_date=#{updateDate}, 
+			remarks=#{remarks}, 
+			del_flag=#{delFlag}
+		WHERE id=#{id}
+	</update>
+    <!-- 流转信息查询 -->
+    <select id="getByProcInsId" resultType="Quit">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        <include refid="quitJoins"/>
+        WHERE q.proc_ins_id = #{procInsId}
+    </select>
+    <select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+    <!-- 撤销申请操作 -->
+    <update id="delete">
+		UPDATE tb_quit SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+    <!-- 查询所有提交离职通过人员列表数据 -->
+    <select id="findAllList" resultType="Quit">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        <include refid="quitJoins"/>
+        WHERE q.statu="审核通过"
+        ORDER BY q.create_date desc
+    </select>
+    <!-- 查询所有提交人员列表数据 -->
+    <select id="findAllList1" resultType="Quit">
+        SELECT
+        <include refid="quitColumns"/>
+        FROM tb_quit q
+        <include refid="quitJoins"/>
+        WHERE q.del_flag = "0"
+        ORDER BY q.create_date desc
+    </select>
+    <delete id="deleteQuit">
+   		DELETE FROM
+   		tb_quit 
+   		WHERE proc_ins_id=#{procInsId} 
+   </delete>
+    <delete id="deleteTask">
+   		DELETE FROM
+   		act_ru_task 
+   		WHERE PROC_INST_ID_=#{procInstId} 
+   </delete>
+</mapper>

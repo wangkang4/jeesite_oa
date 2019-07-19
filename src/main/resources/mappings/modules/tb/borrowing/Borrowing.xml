@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.borrowing.dao.BorrowingDao">
+	<insert id="insert">
+		INSERT INTO tb_borrowing(
+			id,
+			proc_ins_id,
+			title,
+			name,
+			office,
+			time,
+			money,
+			reason,
+			notes,
+			statu,
+			prone_text,
+			prtwo_text,
+			prthree_text,
+			prfour_text,
+			prfive_text,
+			prsix_text,
+			prseven_text,
+			preight_text,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			ename
+		)VALUES(
+			#{id},
+			#{procInsId},
+			#{title},
+			#{name.id},
+			#{office.id},
+			#{time},
+			#{money},
+			#{reason},
+			#{notes},
+			#{statu},
+			#{proneText},
+			#{prtwoText},
+			#{prthreeText},
+			#{prfourText},
+			#{prfiveText},
+			#{prsixText},
+			#{prsevenText},
+			#{preightText},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0',
+			#{ename}
+		)
+	</insert>
+	<update id="update">
+		UPDATE tb_borrowing SET 
+			title = #{title},
+			name = #{name.id},
+			office = #{office.id},
+			time = #{time},
+			money = #{money},
+			reason = #{reason},
+			notes = #{notes},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			ename = #{ename}
+		WHERE id = #{id}
+	</update>
+	<update id="delete">
+   		UPDATE tb_borrowing SET
+   			del_flag = "1"
+   		WHERE id = #{id}
+    </update>
+	
+	<sql id="BorrowingColumns">
+		tb.id,
+		tb.proc_ins_id,
+		tb.title,
+		tb.name,
+		tb.office,
+		tb.time,
+		tb.money,
+		tb.reason,
+		tb.notes,
+		tb.statu,
+		tb.address,
+		tb.prone_text,
+		tb.prtwo_text,
+		tb.prthree_text,
+		tb.prfour_text,
+		tb.prfive_text,
+		tb.prsix_text,
+		tb.prseven_text,
+		tb.preight_text,
+		tb.create_by,
+		tb.create_date,
+		tb.update_by,
+		tb.update_date,
+		tb.del_flag,
+		u.name AS 'name.name',
+		o.name AS 'office.name',
+		tb.ename
+	</sql>
+	<sql id="BorrowingJoins">
+		JOIN sys_user u ON u.id=tb.name
+		JOIN sys_office o ON o.id=tb.office
+    </sql>
+    
+	
+	<select id="findList" resultType="Borrowing" >
+    SELECT 
+		<include refid="BorrowingColumns"/>
+	FROM tb_borrowing tb
+	<include refid="BorrowingJoins"/>
+	WHERE tb.del_flag = "0" 
+	<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			and tb.create_by = #{createBy.id}
+	</if>
+	ORDER BY tb.update_date DESC
+   </select>
+   
+    <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Borrowing"  parameterType="String" >
+    SELECT 
+		<include refid="BorrowingColumns"/>
+	FROM tb_borrowing tb
+		left JOIN sys_user u ON u.id = tb.create_by 
+  		left JOIN sys_office o ON o.id = u.office_id 
+   		left JOIN sys_area sa ON sa.id = o.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   <select id="findEmployeesList" resultType="Borrowing" >
+   	SELECT 
+   		<include refid="BorrowingColumns"/>
+	FROM tb_borrowing tb
+	<include refid="BorrowingJoins"/>
+	WHERE tb.del_flag = "0" AND tb.statu in ("审核通过","已付款")
+	<if test="st != null and st != ''">
+			and tb.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and tb.create_date &lt; #{et}
+		</if>
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			and tb.create_by = #{createBy.id}
+		</if>
+	ORDER BY tb.update_date DESC
+   </select>
+   
+   <select id="get" resultType="Borrowing">
+   	SELECT 
+   		<include refid="BorrowingColumns"/>
+   	FROM tb_borrowing tb
+   	<include refid="BorrowingJoins"/>
+   	WHERE tb.id = #{id}
+   </select>
+  
+	
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<select id="getByProcInsId" resultType="Borrowing">
+		SELECT 
+		<include refid="BorrowingColumns"/>
+	FROM tb_borrowing tb
+	<include refid="BorrowingJoins"/>
+	WHERE tb.proc_ins_id = #{procInsId}
+	</select>
+	<update id="updateProneText">
+		UPDATE tb_borrowing SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_borrowing SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_borrowing SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_borrowing SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfiveText">
+		UPDATE tb_borrowing SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsixText">
+		UPDATE tb_borrowing SET 
+			prsix_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsevenText">
+		UPDATE tb_borrowing SET 
+			prseven_text = #{prsevenText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePreightText">
+		UPDATE tb_borrowing SET 
+			preight_text = #{preightText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_borrowing SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="upload" parameterType="Borrowing">
+		UPDATE tb_borrowing SET
+			 address = #{address}
+		WHERE id = #{id}
+	</update>
+</mapper>

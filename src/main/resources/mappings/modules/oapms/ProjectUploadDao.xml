@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.ProjectUploadDao">
+    
+    <sql id="documentColumns">
+		a.document_id AS "documentId",
+		a.project_id AS "project.projectId",
+		a.document_name AS "documentName",
+		a.upload_by AS "uploadBy.id",
+		a.upload_time AS "uploadTime",
+		a.upload_addr AS "uploadAddr",
+		a.create_by AS "createBy.id",
+		a.create_time AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_time AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+    
+	<insert id="saveFileToMysql">
+		INSERT INTO pms_project_document(
+			project_id,
+			document_id,
+			document_name,
+			upload_by,
+			upload_time,
+			upload_addr,
+			create_by,
+			create_time,
+			update_by,
+			update_time,
+			del_flag
+		) VALUES (
+			#{projectId},
+			#{documentId},
+			#{documentName},
+			#{uploadBy.id},
+			#{uploadTime},
+			#{uploadAddr},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<select id="getonefile" parameterType="String" resultType="PmsProjectDocument">
+		select 
+			<include refid="documentColumns"/>
+		from pms_project_document a
+		where a.document_id = #{id}
+	</select>
+	
+	<delete id="deleteFileToMysql" parameterType="String">
+		delete from pms_project_document  
+		where document_id = #{id}
+	</delete>
+	
+	<select id="getOneDocumentDownload" parameterType="String" resultType="PmsProjectDocument">
+		select 
+			a.document_id AS "documentId",
+			a.project_id AS "project.projectId",
+			a.document_name AS "documentName",
+			a.upload_by AS "uploadBy.id",
+			a.upload_time AS "uploadTime",
+			a.upload_addr AS "uploadAddr",
+			a.create_by AS "createBy.id",
+			a.create_time AS "createDate",
+			a.update_by AS "updateBy.id",
+			a.update_time AS "updateDate",
+			a.del_flag AS "delFlag"
+		from pms_project_document a 
+		where a.document_id = #{id}	
+			and a.del_flag = "0"	
+	</select>
+	
+	<update id="saveProjectId" >
+		update pms_project_document
+		SET project_id = #{projectId}
+		where document_id = #{documentId}
+	</update>
+
+</mapper>

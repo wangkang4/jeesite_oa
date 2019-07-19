@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.pay.dao.PayDao">
+	<insert id="insert">
+		INSERT into tb_pay(
+			id,
+			proc_ins_id,
+			reason,
+			project_name,
+			project_num,
+			money,
+			project_date,
+			pay_money,
+			last_time,
+			notes,
+			statu,
+			apply_address,
+			pay_methods,
+			pay_type_big,
+			pay_type_small,
+			amount_paid,
+			contract_id,
+			payee_name,
+			payee_account,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			ename
+		)VALUES(
+			#{id},
+			#{procInsId},
+			#{reason},
+			#{projectName},
+			#{projectNum},
+			#{money},
+			#{projectDate},
+			#{payMoney},
+			#{lastTime},
+			#{notes},
+			"审核中",
+			#{applyAddress},
+			#{payMethods},
+			#{payTypeBig},
+			#{payTypeSmall},
+			#{amountPaid},
+			#{contractId},
+			#{payeeName},
+			#{payeeAccount},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			"0",
+			#{ename}
+		)
+	</insert>
+	<sql id="payColumn">
+		p.id,
+		p.proc_ins_id,
+		p.reason,
+		p.project_name,
+		p.project_num,
+		p.money,
+		p.project_date,
+		p.pay_money,
+		p.last_time,
+		p.notes,
+		p.apply_address,
+		p.invoic_address,
+		p.pay_methods,
+		p.pay_type_big,
+		p.pay_type_small,
+		p.amount_paid,
+		p.contract_id,
+		p.payee_name,
+		p.payee_account,
+		p.prone_text,
+		p.prtwo_text,
+		p.prthree_text,
+		p.prfour_text,
+		p.prfive_text,
+		p.prsix_text,
+		p.prsev_text,
+		p.statu,
+		p.create_by,
+		p.create_date,
+		p.update_by,
+		p.update_date,
+		u.name AS "createBy.name",
+		p.ename
+	</sql>
+	<select id="findList" parameterType="Pay" resultType="Pay">
+		select 
+		<include refid="payColumn"></include>
+		FROM tb_pay p
+		LEFT JOIN sys_user u ON p.create_by=u.id
+		WHERE p.del_flag = "0"
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			AND p.create_by =#{createBy.id}
+		</if>
+		order by p.update_date DESC
+	</select>
+	
+	<!--行政人员查看所属区域申请列表 -->
+    <select id="findList2" resultType="Pay"  parameterType="String" >
+    SELECT 
+		<include refid="payColumn"/>
+	FROM tb_pay p
+		left JOIN sys_user u ON u.id = p.create_by 
+  		left JOIN sys_office so ON so.id = u.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+	
+	<select id="findEmployeesList" resultType="Pay">
+		SELECT 
+			<include refid="payColumn"></include>
+		FROM tb_pay p
+		LEFT JOIN sys_user u ON p.create_by=u.id
+		WHERE p.del_flag = "0" AND p.statu in("审核通过","已付款","作废")
+		<if test="st != null and st != ''">
+			and p.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and p.create_date &lt; #{et}
+		</if>
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			and p.create_by = #{createBy.id}
+		</if>
+		order by p.update_date DESC
+	</select>
+	<select id="get" resultType="Pay">
+		SELECT
+		<include refid="payColumn"></include>
+		FROM tb_pay p
+		LEFT JOIN sys_user u ON p.create_by = u.id
+		WHERE p.id = #{id}
+	</select>
+	<update id="update">
+		UPDATE tb_pay SET 
+			reason = #{reason},
+			project_name = #{projectName},
+			project_num = #{projectNum},
+			money = #{money},
+			project_date = #{projectDate},
+			pay_money = #{payMoney},
+			last_time = #{lastTime},
+			pay_type_big = #{payTypeBig},
+			pay_type_small = #{payTypeSmall},
+			pay_methods = #{payMethods},
+			notes=#{notes}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate},
+			ename = #{ename}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_pay
+		SET prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_pay
+		SET prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_pay
+		SET prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_pay
+		SET prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfiveText">
+		UPDATE tb_pay
+		SET prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsixText">
+		UPDATE tb_pay
+		SET prsix_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsevText">
+		UPDATE tb_pay
+		SET prsev_text = #{prsevText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_pay SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="upload" parameterType="Pay">
+		UPDATE tb_pay SET 
+			invoic_address = #{invoicAddress}
+		WHERE id = #{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<select id="selectFromPayTypeBig" resultType="PayTypeBig">
+		SELECT id,
+				type
+		FROM tb_pay_type_big
+	</select>
+	<select id="selectFromPayTypeSmall" resultType="PayTypeSmall">
+		SELECT id,
+				type,
+				parent_id AS 'pid'
+		FROM tb_pay_type_small
+	</select>
+	<select id="getContract" resultType="Contract" parameterType="String">
+		select id,contract_num,contract_name
+		from tb_contract
+		where statu="审核通过" and contract_apply = #{userId}
+	</select>
+	<select id="getByProcInsId" resultType="Pay">
+		SELECT 
+			<include refid="payColumn"></include>
+		FROM tb_pay p
+		LEFT JOIN sys_user u ON p.create_by = u.id
+		WHERE p.proc_ins_id = #{procInsId}
+	</select>
+	<delete id="deletePay">
+		UPDATE tb_pay SET
+   		<!-- del_flag = "1", -->
+   		statu='作废'
+   		WHERE proc_ins_id=#{procInsId} 
+   </delete>
+   <!-- <delete id="deleteTask">
+   		DELETE FROM
+   		act_ru_task 
+   		WHERE PROC_INST_ID_=#{procInstId} 
+   </delete> -->
+   <!-- 撤销申请操作 -->
+  	<update id="delete">
+		UPDATE tb_pay SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+</mapper>

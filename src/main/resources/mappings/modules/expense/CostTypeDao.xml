@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.expense.dao.CostTypeDao">
+	
+	<select id="findCostType" resultType="com.thinkgem.jeesite.modules.expense.entity.CostType">
+		select * from expense_type order by length(cost_type);
+	</select>
+	
+	<select id="findById"  parameterType="java.lang.String" resultType="java.lang.String">
+		select cost_type from expense_type where cost_type_id=#{costTypeId};
+	</select>
+	
+	<select id="selectCostDescription"  resultType="com.thinkgem.jeesite.sale.entity.Cost">
+		select ed.cost_description_id AS 'id',
+			ed.cost_description AS 'name',
+			et.cost_type_id AS 'pid',
+			et.cost_type AS 'pname'
+		from expense_description ed
+		left join expense_type et on ed.cost_type_id = et.cost_type_id 
+	</select>
+</mapper>

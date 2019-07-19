@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oaproject.dao.PmTaskMainDao">
+    
+	<sql id="pmTaskMainColumns">
+		a.id AS "id",
+		a.project_id AS "projectId",
+		a.tashk_theme AS "tashkTheme",
+		a.customer_id AS "customerId",
+		a.task_type AS "taskType",
+		a.project_stage AS "projectStage",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.task_content AS "taskContent",
+		a.priority AS "priority",
+		a.appendix_id AS "appendixId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="pmTaskMainJoins">
+		LEFT JOIN sys_user u4 ON u4.id = a.customer_id
+	</sql>
+    
+	<select id="get" resultType="PmTaskMain">
+		SELECT 
+			<include refid="pmTaskMainColumns"/>
+		FROM pm_task_main a
+		<include refid="pmTaskMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PmTaskMain">
+		SELECT 
+			<include refid="pmTaskMainColumns"/>,
+			b.project_name As projectName
+		FROM pm_task_main a
+		<include refid="pmTaskMainJoins"/>
+		LEFT JOIN pm_project_main b ON a.project_id = b.id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} 
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findPageList" resultType="PmTaskMain">
+		SELECT 
+			<include refid="pmTaskMainColumns"/>,
+			b.project_name As projectName
+		FROM pm_task_main a
+		<include refid="pmTaskMainJoins"/>
+		LEFT JOIN pm_project_main b ON a.project_id = b.id
+		LEFT JOIN pm_correlation e ON e.task_id = a.id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and (
+			e.user_id = #{userId}
+			OR (
+				e.create_by = #{userId}
+				AND e.people_position = 'copy'
+			)
+		)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PmTaskMain">
+		SELECT 
+			<include refid="pmTaskMainColumns"/>
+		FROM pm_task_main a
+		<include refid="pmTaskMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findPmTaskMain" resultType="PmTaskMain">
+		SELECT 
+			<include refid="pmTaskMainColumns"/>
+		FROM pm_task_main a
+		<include refid="pmTaskMainJoins"/>
+		<where>
+			a.del_flag = '0'
+			and a.id = #{taskId}
+		</where>	
+	</select>
+	
+	<select id="getCorrelationList" resultType="PmTaskMain">
+		SELECT
+			a.user_id As userId,
+			a.people_position As peoplePosition,
+			b. NAME As userName
+		FROM
+			pm_correlation a,
+			sys_user b
+		WHERE
+			a.user_id = b.id
+		AND a.task_id = #{id}
+		AND a.del_flag = '0'
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pm_task_main(
+			id,
+			project_id,
+			tashk_theme,
+			customer_id,
+			task_type,
+			project_stage,
+			start_time,
+			end_time,
+			task_content,
+			priority,
+			appendix_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectId},
+			#{tashkTheme},
+			#{customerId},
+			#{taskType},
+			#{projectStage},
+			#{startTime},
+			#{endTime},
+			#{taskContent},
+			#{priority},
+			#{appendixId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<insert id="saveCorrelationList">
+		INSERT INTO pm_correlation (
+			id,
+			task_id,
+			user_id,
+			people_position,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES
+		<foreach collection="list" item="item" index="index" separator=",">(
+			#{item.id},
+			#{item.taskId},
+			#{item.userId},
+			#{item.peoplePosition},
+			#{item.createBy.id},
+			#{item.createDate},
+			#{item.updateBy.id},
+			#{item.updateDate},
+			#{item.delFlag}
+		)
+		</foreach> 
+	</insert>
+	
+	<update id="delCorrelation">
+		UPDATE pm_correlation SET del_flag = '1' where task_id = #{id}
+	</update>
+	
+	<update id="update">
+		UPDATE pm_task_main SET 	
+			project_id = #{projectId},
+			tashk_theme = #{tashkTheme},
+			customer_id = #{customerId},
+			task_type = #{taskType},
+			project_stage = #{projectStage},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			task_content = #{taskContent},
+			priority = #{priority},
+			appendix_id = #{appendixId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE pm_task_main SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

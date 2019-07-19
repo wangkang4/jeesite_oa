@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.risk.dao.PageDao">
+	<select id="findAllRiskInfo" resultType="java.lang.Integer"
+		parameterType="PageBean">
+		SELECT
+		COUNT(r.id)
+		FROM
+		pm_risk_information r
+		left join pm_project_main p on p.id = r.project_id
+		left join sys_user s on
+		s.id=r.response_id
+		where
+		r.del_flag="0"
+		<if test="riskInfo!=null ">
+			<if test="riskInfo.pmsPro!=null ">
+				<if
+					test="riskInfo.pmsPro.projectName !=null and riskInfo.pmsPro.projectName !='' ">
+					and p.project_name like CONCAT
+					('%',#{riskInfo.pmsPro.projectName},'%')
+				</if>
+			</if>
+		</if>
+		<if test="riskInfo!=null ">
+			<if test="riskInfo.riskState !=null and riskInfo.riskState!=''">
+				and r.risk_state =#{riskInfo.riskState}
+			</if>
+		</if>
+
+	</select>
+	<select id="findRiskInfo" resultType="RiskInfo" parameterType="PageBean">
+		select
+		r.id AS "id",
+		r.project_id AS "proId",
+		p.project_name AS
+		"pmsPro.projectName",
+		s.name AS "user.name",
+		r.risk_name AS "riskName",
+		r.risk_probability AS "riskPro",
+		r.risk_influence AS "riskInfu",
+		r.response_id AS "responseId",
+		r.expecte_start_time AS "expecteTime",
+		r.risk_type AS "riskType",
+		r.risk_state AS "riskState",
+
+		r.start_time AS "startTime",
+		r.end_time AS "endTime",
+		r.risk_describe AS
+		"riskDescrible",
+		r.solve_programme AS "solveProgramme",
+
+
+		r.create_by AS "createBy.id",
+		r.create_date AS "createDate",
+		r.update_by AS
+		"updateBy.id",
+		r.update_date AS "updateDate",
+		r.del_flag AS "delFlag"
+		from
+		pm_risk_information r
+		left join pm_project_main p on p.id = r.project_id
+		left join sys_user s on
+		s.id=r.response_id
+		where r.del_flag != "1"
+		<if test="riskInfo!=null ">
+			<if test="riskInfo.pmsPro!=null ">
+				<if
+					test="riskInfo.pmsPro.projectName !=null and riskInfo.pmsPro.projectName !='' ">
+					and p.project_name like CONCAT
+					('%',#{riskInfo.pmsPro.projectName},'%')
+				</if>
+			</if>
+		</if>
+		<if test="riskInfo!=null ">
+			<if test="riskInfo.riskState !=null and riskInfo.riskState!=''">
+				and r.risk_state =#{riskInfo.riskState}
+			</if>
+		</if>
+		order by r.create_date desc
+		limit
+		#{startIndex},#{pageSize}
+	</select>
+
+</mapper> 

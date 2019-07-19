@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.VisitDao">
+	
+   <!-- 查询所有拜访记录 -->
+	<select id="findList" resultType="Visit" parameterType="Visit">
+		SELECT v.visit_id AS 'visitId',
+				v.title,
+				v.visit_time AS 'visitTime',
+				v.visit_summary AS 'visitSummary',
+				v.next_plan AS 'nextPlan',
+				v.customer_id AS 'customer.customerId',
+				c.customer_name AS 'customer.customerName',
+				v.customer_contact_id AS 'customerContact.customerContactId',
+				t.customer_contact_name AS 'customerContact.customerContactName',
+				v.visit_address AS 'visitAddress',
+				v.create_by AS 'createBy.id'
+		FROM pms_visit v
+		LEFT JOIN pms_customer c on v.customer_id = c.customer_id
+		LEFT JOIN pms_customer_contact t on v.customer_contact_id = t.customer_contact_id
+		WHERE v.del_flag = '0'
+		<if test="customerContact !=null and customerContact.customerContactId !='' and customerContact.customerContactId != null">
+			AND v.customer_contact_id= #{customerContact.customerContactId}
+		</if>
+		ORDER BY v.create_date DESC
+	</select>
+	<!-- 插入一条拜访记录 -->
+	<insert id="insertVisit" parameterType="Visit">
+		INSERT INTO pms_visit(
+			visit_id,
+			title,
+			visit_time,
+			visit_summary,
+			next_plan,
+			customer_id,
+			customer_contact_id,
+			visit_address,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		)VALUES(
+			#{visitId},
+			#{title},
+			#{visitTime},
+			#{visitSummary},
+			#{nextPlan},
+			#{customer.customerId},
+			#{customerContact.customerContactId},
+			#{visitAddress},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0'
+		)
+	</insert>
+	<!-- 根据id删除拜访记录 -->
+	<update id="deleteVisitById" parameterType="string">
+		UPDATE pms_visit
+		SET del_flag = '1'
+		WHERE visit_id = #{visitId}
+	</update>
+	<!-- 根据拜访id查询创建人 -->
+	<select id="selectCreateByByVisitId" resultType="String" parameterType="string">
+		SELECT create_by
+		FROM pms_visit
+		WHERE visit_id=#{visitId}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oaproject.dao.PmProjectDetailedDao">
+    
+	<sql id="pmProjectDetailedColumns">
+		a.id AS "id",
+		a.project_id AS "projectId",
+		a.project_class AS "projectClass",
+		a.assist_department AS "assistDepartment",
+		a.project_source AS "projectSource",
+		a.project_level AS "projectLevel",
+		a.project_importance AS "projectImportance",
+		a.project_urgent AS "projectUrgent",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.customer_name AS "customerName",
+		a.project_background AS "projectBackground",
+		a.project_range AS "projectRange",
+		a.project_target AS "projectTarget",
+		a.project_constraint AS "projectConstraint",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="pmProjectDetailedJoins">
+	</sql>
+    
+	<select id="get" resultType="PmProjectDetailed">
+		SELECT 
+			<include refid="pmProjectDetailedColumns"/>
+		FROM pm_project_detailed a
+		<include refid="pmProjectDetailedJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getProjectDetailed" resultType="PmProjectDetailed">
+		SELECT 
+			<include refid="pmProjectDetailedColumns"/>
+		FROM pm_project_detailed a
+		WHERE a.del_flag = '0' and a.project_id = #{projectId}
+	</select>
+	
+	<select id="findList" resultType="PmProjectDetailed">
+		SELECT 
+			<include refid="pmProjectDetailedColumns"/>
+		FROM pm_project_detailed a
+		<include refid="pmProjectDetailedJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PmProjectDetailed">
+		SELECT 
+			<include refid="pmProjectDetailedColumns"/>
+		FROM pm_project_detailed a
+		<include refid="pmProjectDetailedJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="saveProjectRelationList">
+		INSERT INTO pm_project_project_relation(
+			id,
+			project_id,
+			other_project_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES
+		(
+			#{id}, 
+			#{projectId},
+			#{otherProjectId},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0')
+	</insert>
+	
+	<insert id="saveProjectCustomerList">
+		INSERT INTO pm_project_customer_relation(
+			id,
+			project_id,
+			customer_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES
+		(
+			#{id}, 
+			#{projectId},
+			#{customerId},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0')
+	</insert>
+	
+	<insert id="saveOpponentList">
+		INSERT INTO pm_opponent_information(
+			id,
+			opponet_name,
+			opponet_content,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{opponetName},
+			#{opponetContent},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0'
+		)
+	</insert>
+	
+	<insert id="saveProjectOpponentList">
+		INSERT INTO pm_project_opponent_relation(
+			id,
+			project_id,
+			opponent_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{opponentId},
+			#{projectId},
+			#{id},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0'
+		)
+	</insert>
+	
+	<insert id="saveCooperationList">
+		INSERT INTO pm_cooperation_information(
+			id,
+			cooperation,
+			contacts,
+			iphone,
+			position,
+			cooperation_pattern,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES(
+			#{id},
+			#{cooperation},
+			#{contacts},
+			#{iphone},
+			#{position},
+			#{cooperationPattern},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0'
+		)
+	</insert>
+	
+	<insert id="saveProjectCooperationList">
+		INSERT INTO pm_project_cooperation_relation(
+			id,
+			project_id,
+			cooperation_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES(
+			#{cooperationId},
+			#{projectId},
+			#{id},
+			#{createBy.id},
+			now(),
+			#{updateBy.id},
+			now(),
+			'0'
+		)
+	</insert>
+	
+	<insert id="insert">
+		INSERT INTO pm_project_detailed(
+			id,
+			project_id,
+			project_class,
+			assist_department,
+			project_source,
+			project_level,
+			project_importance,
+			project_urgent,
+			start_time,
+			end_time,
+			customer_name,
+			project_background,
+			project_range,
+			project_target,
+			project_constraint,
+			remarks,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectId},
+			#{projectClass},
+			#{assistDepartment},
+			#{projectSource},
+			#{projectLevel},
+			#{projectImportance},
+			#{projectUrgent},
+			#{startTime},
+			#{endTime},
+			#{customerName},
+			#{projectBackground},
+			#{projectRange},
+			#{projectTarget},
+			#{projectConstraint},
+			#{remarks},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="delProjectRelation">
+		UPDATE pm_project_project_relation SET del_flag = '1' where project_id =#{projectId}
+	</update>
+	
+	<update id="delProjectCustomer">
+		UPDATE pm_project_customer_relation SET del_flag = '1' where project_id =#{projectId}
+	</update>
+	
+	<update id="delProjectOpponent">
+		UPDATE pm_project_opponent_relation SET del_flag = '1' where project_id =#{projectId}
+	</update>
+	
+	<update id="delProjectCooperation">
+		UPDATE pm_project_cooperation_relation SET del_flag = '1' where project_id =#{projectId}
+	</update>
+	
+	<update id="update">
+		UPDATE pm_project_detailed SET 	
+			project_id = #{projectId},
+			project_class = #{projectClass},
+			assist_department = #{assistDepartment},
+			project_source = #{projectSource},
+			project_level = #{projectLevel},
+			project_importance = #{projectImportance},
+			project_urgent = #{projectUrgent},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			customer_name = #{customerName},
+			project_background = #{projectBackground},
+			project_range = #{projectRange},
+			project_target = #{projectTarget},
+			project_constraint = #{projectConstraint},
+			remarks = #{remarks},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE pm_project_detailed SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

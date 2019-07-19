@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.CustomerDao">
+	
+	<sql id="leaveJoins">
+	LEFT JOIN (select employees_id,id from pms_project_relativer where employees_type='销售经理' and relative_type='0') j 	
+   	ON c.customer_id=j.id
+   	LEFT JOIN (select employees_id,id from pms_project_relativer where employees_type='产品经理' and relative_type='0' ) d 	
+   	ON c.customer_id=d.id
+   	LEFT JOIN sys_user uj ON uj.id = j.employees_id
+   	LEFT JOIN sys_user ud ON ud.id = d.employees_id
+   	LEFT JOIN sys_user uc ON uc.id = c.create_by
+   	LEFT JOIN sys_user uu ON uu.id = c.update_by
+    </sql>
+	
+	<!-- 查询所有客户信息 -->
+   <select id="findList" resultType="Customer" parameterType="Customer">
+   	SELECT c.customer_id AS 'customerId',
+   			c.customer_name AS 'customerName',
+   			c.address,
+   			c.category,
+   			c.industry,
+   			c.office,
+   			c.area,
+   			c.attachment_name AS 'attachmentName',
+   			c.attachment_address AS 'attachmentAddress',
+   			j.employees_id As 'saler.id',
+   			d.employees_id As 'producter.id',
+   			uj.name AS 'saler.name',
+   			ud.name AS 'producter.name',
+   			uc.name AS 'createBy.name',
+   			uu.name AS 'updateBy.name'
+   	FROM pms_customer c 
+   	<include refid="leaveJoins"/>
+   	WHERE c.del_flag='0'
+   	<if test="industry!='' and industry != null">
+			AND c.industry= #{industry}
+	</if>
+	<if test="customerName!='' and customerName != null">
+			AND c.customer_name like CONCAT('%', #{customerName}, '%')
+	</if>
+	ORDER BY c.create_date DESC
+   </select>
+   <!-- 根据客户姓名判断是否已存在 -->
+   <select id="judgeCustomerName" resultType="int" parameterType="String">
+   	SELECT count(1)
+   	FROM pms_customer
+   	WHERE customer_name = #{customerName}
+   </select>
+   <!-- 根据客户id查询客户信息 -->
+   <select id="selectCustomerByCustomerId" resultType="Customer" parameterType="String">
+   	SELECT c.customer_id AS 'customerId',
+   			c.customer_name AS 'customerName',
+   			c.address,
+   			c.category,
+   			c.industry,
+   			c.office,
+   			c.area,
+   			c.attachment_name AS 'attachmentName',
+   			c.attachment_address AS 'attachmentAddress',
+   			j.employees_id As 'saler.id',
+   			d.employees_id As 'producter.id',
+   			uj.name AS 'saler.name',
+   			ud.name AS 'producter.name'
+   	FROM pms_customer c 
+   	<include refid="leaveJoins"/>
+   	WHERE c.customer_id=#{customerId} and c.del_flag='0'
+   </select>
+   <!-- 根据客户id查询相关人信息 -->
+   <select id="selectPersonsByCustomerId" resultType="String" parameterType="String">
+    SELECT p.employees_id 
+    FROM pms_customer c
+    LEFT JOIN pms_project_relativer p on c.customer_id = p.id
+    WHERE c.customer_id=#{customerId} and c.del_flag='0' and p.employees_type='相关人' and p.relative_type='0'
+   </select>
+   <!-- 查询所有的客户相关人，产品经理，销售经理 -->
+   <select id="selectIdByEmployeesId" resultType="String" parameterType="String">
+   	SELECT id
+   	FROM pms_project_relativer
+   	WHERE relative_type='0' and employees_id = #{employeesId}
+   </select>
+   <!--增加客户  -->
+   <insert id="insertCustomer" parameterType="Customer">
+   INSERT INTO pms_customer(
+   		customer_id,
+   		customer_name,
+   		address,
+   		category,
+   		industry,
+   		office,
+   		area,
+   		attachment_address,
+   		attachment_name,
+   		create_date,
+   		create_by,
+   		update_date,
+   		update_by,
+   		del_flag
+   )VALUES(
+   		#{customerId},
+   		#{customerName},
+   		#{address},
+   		#{category},
+   		#{industry},
+   		#{office},
+   		#{area},
+   		#{attachmentAddress},
+   		#{attachmentName},
+   		now(),
+   		#{createBy.id},
+   		now(),
+   		#{updateBy.id},
+   		'0'
+   )
+   </insert>
+   <!-- 插入客户时同时添加关联表信息 -->
+   <insert id="insertProjectRelativer" parameterType="ProjectRelativer">
+   		INSERT into pms_project_relativer(
+   			id,
+   			relative_type,
+   			employees_id,
+   			employees_type
+   		)VALUES(
+   			#{id},
+   			'0',
+   			#{employees.id},
+   			#{employeesType}
+   		)
+   </insert>
+   <!-- 根据客户id获取当前客户的销售经理和产品经理 -->
+   <select id="selectManagerByCustomerId" resultType="String" parameterType="String">
+   		SELECT p.employees_id
+		FROM pms_customer c
+		LEFT JOIN (select employees_id,id from pms_project_relativer where employees_type !='相关人' and relative_type='0') p 	
+   		ON c.customer_id=p.id
+		WHERE c.customer_id=#{customerId}
+   </select>
+   <!-- 根据客户id删除客户 -->
+	<update id="deleteCustomerByCustomerId" parameterType="String">
+		UPDATE pms_customer
+		SET del_flag='1'
+		WHERE customer_id=#{customerId} 
+	</update>
+	<!-- 根据客户id删除关联表的相关人，销售经理，产品经理 -->
+	<delete id="deleteCustomerRelativerByCustomerId" parameterType="String">
+		DELETE FROM pms_project_relativer 
+		WHERE id = #{customerId}
+	</delete>
+	<!-- 修改客户信息 -->
+	<update id="updateCustomerByCustomer" parameterType="Customer">
+		UPDATE pms_customer
+		SET customer_name = #{customerName},
+   			address = #{address},
+   			category = #{category},
+	   		industry = #{industry},
+	   		office = #{office},
+	   		area = #{area},
+	   		update_date = now(),
+	   		update_by = #{updateBy.id}
+	   	WHERE customer_id=#{customerId}
+	</update>
+	<!-- 查询字典表把所属类别换成对应的字符串 -->
+	<select id="selectCategory" resultType="com.thinkgem.jeesite.modules.oapms.entity.Replace">
+		SELECT value, label 
+		FROM sys_dict 
+		WHERE type = 'pms_customer_category'
+	</select>
+	<!-- 查询字典表把所属行业换成对应的字符串 -->
+	<select id="selectIndustry" resultType="com.thinkgem.jeesite.modules.oapms.entity.Replace">
+		SELECT value, label 
+		FROM sys_dict 
+		WHERE type = 'pms_customer_industry'
+	</select>
+	<!-- 查询所有的客户id和客户名称 -->
+	<select id="selectIdAndName" resultType="Customer">
+		SELECT customer_id AS 'customerId',
+			customer_name AS 'customerName'
+		FROM pms_customer
+		WHERE del_flag='0'
+	</select>
+	<!-- 通过附件id查询附件名字 -->
+	<select id="selectAttachmentById" resultType="String" parameterType="String">
+		SELECT attachment_name
+		FROM pms_customer
+		WHERE attachment_address =#{attachmentAddress}
+	</select>
+	<!-- 根据客户id删除联系人 -->
+	<update id="deleteContactByCustmerId" parameterType="String">
+		UPDATE pms_customer_contact
+		SET del_flag = '1'
+		WHERE customer_id = #{customerId}
+	</update>
+</mapper>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.receiptNotice.dao.ReceiptNoticeDao">
+   	
+   	<sql id="receiptNoticeColumns">
+   		r.id,
+   		r.user_id,
+   		r.office_id,
+   		r.receipt_date AS 'receiptDate',
+   		r.payment_name AS 'paymentName',
+   		r.receipt_name AS 'receiptName',
+   		r.contract_number AS 'contractNumber',
+   		r.total_money AS 'totalMoney',
+   		r.already_money AS 'alreadyMoney',
+   		r.now_money AS 'nowMoney',
+   		r.receipt_nature AS 'receiptNature',
+   		r.times,
+   		r.pbank,
+   		r.pname,
+   		r.pnumber,
+   		su.id AS 'user.id',
+		so.id AS 'office.id',
+		su.name AS 'user.name',
+		so.name AS 'office.name',
+		r.create_by AS 'createBy.id',
+		r.create_date AS 'createDate',
+		r.update_by AS 'updateBy.id',
+		r.update_date AS 'updateDate',	
+		r.del_flag AS 'delFlag'
+   	</sql>
+	
+	<sql id="receiptNoticeJoins">
+		JOIN sys_user su ON su.id=r.user_id
+		JOIN sys_office so ON so.id=r.office_id
+	</sql>
+  
+  	<insert id="insert">
+  		INSERT INTO tb_receiptnotice(
+  			id,
+  			user_id,
+  			office_id,
+  			receipt_date,
+  			payment_name,
+  			receipt_name,
+  			contract_number,
+  			total_money,
+  			already_money,
+  			now_money,
+  			receipt_nature,
+  			times,
+  			pbank,
+  			pname,
+  			pnumber,
+  			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+  		)
+  		VALUES(
+  			#{id},
+  			#{user.id},
+  			#{office.id},
+  			#{receiptDate},
+  			#{paymentName},
+  			#{receiptName},
+  			#{contractNumber},
+  			#{totalMoney},
+  			#{alreadyMoney},
+  			#{nowMoney},
+  			#{receiptNature},
+  			#{times},
+  			#{pbank},
+  			#{pname},
+  			#{pnumber},
+  			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0'
+  		)
+  	</insert>
+  	
+  	<select id="findList" resultType="ReceiptNotice">
+  			SELECT 
+  		<include refid="receiptNoticeColumns"/>
+  			FROM tb_receiptnotice r
+  		<include refid="receiptNoticeJoins"/>
+  			WHERE r.del_flag = "0" 
+		<if test="user != null and user.id != null and user.id != ''">
+			and su.id = #{user.id}
+		</if>
+			ORDER BY r.create_date desc
+  	</select>
+  	
+  	<select id="findList2" resultType="ReceiptNotice">
+  			SELECT 
+  		<include refid="receiptNoticeColumns"/>
+  			FROM tb_receiptnotice r
+  		<include refid="receiptNoticeJoins"/>
+  			WHERE r.del_flag = "0" 
+			ORDER BY r.create_date desc
+  	</select>
+  	
+  	<select id="get" resultType="ReceiptNotice">
+  		SELECT 
+  		<include refid="receiptNoticeColumns"/>
+  			FROM tb_receiptnotice r
+  		<include refid="receiptNoticeJoins"/>
+  		WHERE r.id=#{id}
+  	</select>
+  
+    <select id="find" resultType="Integer">
+    	SELECT count(1) FROM tb_receiptnotice
+    </select>
+    
+    <!-- 修改操作 -->
+	<update id="update">
+		UPDATE tb_receiptnotice SET
+			id=#{id},
+  			user_id=#{user.id},
+  			office_id=#{office.id},
+  			receipt_date=#{receiptDate},
+  			payment_name=#{paymentName},
+  			receipt_name=#{receiptName},
+  			contract_number=#{contractNumber},
+  			total_money=#{totalMoney},
+  			already_money=#{alreadyMoney},
+  			now_money=#{nowMoney},
+  			receipt_nature=#{receiptNature},
+  			times=#{times},
+  			pbank=#{pbank},
+  			pname=#{pname},
+  			pnumber=#{pnumber},
+  			update_by=#{updateBy.id}, 
+			update_date=#{updateDate}, 
+			del_flag=#{delFlag}
+		WHERE id=#{id}
+	</update>
+    <!-- 撤销申请操作 -->
+  	<update id="delete">
+		DELETE FROM
+   		tb_receiptnotice
+   		WHERE id=#{id}
+	</update>
+    
+</mapper>

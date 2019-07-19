@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.driving.dao.DrivingDao">
+	<insert id="insert">
+		INSERT into tb_driving(
+			id,
+			title,
+			peer,
+			transport_time,
+			origin,
+			destination,
+			estimated_miles,
+			gasoline,
+			estimated_cost,
+			reason,
+			prone_text,
+			statu,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		)VALUES(
+			#{id},
+			#{title},
+			#{peer},
+			#{transportTime},
+			#{origin},
+			#{destination},
+			#{estimatedMiles},
+			#{gasoline},
+			#{estimatedCost},
+			#{reason},
+			#{proneText},
+			'审核中',
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			"0"
+		)
+	</insert>
+	<sql id="drivingColumn">
+		td.id,
+		td.proc_ins_id,
+		td.title,
+		td.peer,
+		td.transport_time,
+		td.origin,
+		td.destination,
+		td.estimated_miles,
+		td.gasoline,
+		td.estimated_cost,
+		td.reason,
+		td.prone_text,
+		td.statu,
+		td.create_by,
+		td.create_date,
+		td.update_by,
+		td.update_date,
+		u.name AS "createBy.name"
+	</sql>
+	<select id="findList" parameterType="Driving" resultType="Driving">
+		select 
+		<include refid="drivingColumn"></include>
+		FROM tb_driving td
+		LEFT JOIN sys_user u ON td.create_by=u.id
+		WHERE td.del_flag = "0"
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			AND td.create_by =#{createBy.id}
+		</if>
+		order by td.update_date DESC
+	</select>
+	
+	 <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Driving"  parameterType="String" >
+    SELECT 
+		<include refid="drivingColumn"/>
+	FROM tb_driving td
+		left JOIN sys_user u ON u.id = td.create_by 
+  		left JOIN sys_office so ON so.id = u.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+	
+	
+	<select id="findEmployeesList" parameterType="Driving" resultType="Driving" >
+   		select 
+		<include refid="drivingColumn"></include>
+		FROM tb_driving td
+		LEFT JOIN sys_user u ON td.create_by=u.id
+		WHERE td.del_flag = "0" and td.statu = "审核通过"
+		ORDER BY td.create_date DESC
+   </select>
+	<select id="get" resultType="driving">
+		SELECT
+		<include refid="drivingColumn"></include>
+		FROM tb_driving td
+		LEFT JOIN sys_user u ON td.create_by = u.id
+		WHERE td.id = #{id}
+	</select>
+	<select id="getByProcInsId" resultType="driving">
+		SELECT 
+			<include refid="drivingColumn"/>
+		FROM tb_driving td
+		LEFT JOIN sys_user u ON td.create_by = u.id
+		WHERE td.proc_ins_id = #{procInsId}
+	</select>
+	<update id="update">
+		UPDATE tb_driving SET 
+			 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_driving
+		SET prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_driving
+		SET prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateStatu">
+		UPDATE tb_driving SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+</mapper>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.customer.dao.PmCustomerZtreeDao">
+    
+	<sql id="pmCustomerZtreeColumns">
+		a.id AS "id",
+		a.parent_id AS "parentId",
+		a.name AS "name",
+		a.project_industry AS "projectIndustry",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="pmCustomerZtreeJoins">
+	</sql>
+    
+	<select id="get" resultType="PmCustomerZtree">
+		SELECT 
+			<include refid="pmCustomerZtreeColumns"/>
+		FROM pm_customer_ztree a
+		<include refid="pmCustomerZtreeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PmCustomerZtree">
+		SELECT 
+			<include refid="pmCustomerZtreeColumns"/>
+		FROM pm_customer_ztree a
+		<include refid="pmCustomerZtreeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PmCustomerZtree">
+		SELECT 
+			<include refid="pmCustomerZtreeColumns"/>
+		FROM pm_customer_ztree a
+		<include refid="pmCustomerZtreeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findPmCustomerZtreeList" resultType="PmCustomerZtree">
+		SELECT 
+			a.id AS "id",
+			a.parent_id AS "parentId",
+			a.name AS "name",
+			a.project_industry AS "projectIndustry",
+			a.create_date AS "createDate",
+			a.create_by AS "createBy.id",
+			a.update_by AS "updateBy.id",
+			a.update_date AS "updateDate",
+			a.del_flag AS "delFlag",
+			b.label AS label
+		FROM pm_customer_ztree a ,sys_dict b
+		where a.del_flag = '0'
+		AND b.type = 'project_industry'
+		AND a.project_industry = b.`value`
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pm_customer_ztree(
+			id,
+			name,
+			parent_id,
+			project_industry,
+			create_date,
+			create_by,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{parentId},
+			#{projectIndustry},
+			#{createDate},
+			#{createBy.id},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pm_customer_ztree SET 	
+			name = #{name},
+			project_industry = #{projectIndustry},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE pm_customer_ztree SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findPmCustomerZtree" resultType="PmCustomerZtree">
+	SELECT
+		a.id AS "id",
+		a.parent_id AS "parentId",
+		a. NAME AS "name",
+		a.project_industry AS "projectIndustry",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		b.label AS label
+	FROM
+		pm_customer_ztree a,
+		sys_dict b,
+		pm_project_main c
+	WHERE
+		a.del_flag = '0'
+	AND b.type = 'project_industry'
+	AND a.project_industry = b.`value`
+	AND c.project_customer = a.id
+	AND c.id = #{id}
+
+	</select>
+	
+</mapper>

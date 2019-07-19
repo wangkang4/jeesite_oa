@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.contract.dao.ContractDao">
+	
+	<insert id="insert">
+		INSERT INTO tb_contract(
+			id,
+			proc_ins_id,
+			contract_apply,
+			contract_date,
+			contract_type,
+			contract_num,
+			contract_name,
+			money,
+			company_name,
+			contract_limit,
+			cooperation_content,
+			gross_margin,
+			settlement,
+			responsibility,
+			other,
+			manager,
+			manager_two,
+			area,
+			area_name,
+			payment_cycle,
+			maintenance,
+			project,
+			friend_id,
+			address,
+			statu,
+			prone_text,
+			prtwo_text,
+			prthree_text,
+			prfour_text,
+			prfive_text,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ename
+		)VALUES(
+			#{id},
+			#{procInsId},
+			#{contractApply},
+			#{contractDate},
+			#{contractType},
+			#{contractNum},
+			#{contractName},
+			#{money},
+			#{companyName},
+			#{contractLimit},
+			#{cooperationContent},
+			#{grossMargin},
+			#{settlement},
+			#{responsibility},
+			#{other},
+			#{manager},
+			#{managerTwo},
+			#{area},
+			#{areaName},
+			#{paymentCycle},
+			#{maintenance},
+			#{project},
+			#{friendId},
+			#{address},
+			'审核中',
+			#{proneText},
+			#{prtwoText},
+			#{prthreeText},
+			#{prfourText},
+			#{prfiveText},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			'0',
+			#{ename}
+		)
+	</insert>
+	<sql id="ContractColumns">
+		tb.id,
+		tb.proc_ins_id,
+		tb.contract_apply,
+		tb.contract_date,
+		tb.contract_type,
+		tb.contract_num,
+		tb.contract_name,
+		tb.money,
+		tb.company_name,
+		tb.contract_limit,
+		tb.cooperation_content,
+		tb.gross_margin,
+		tb.settlement,
+		tb.responsibility,
+		tb.other,
+		tb.manager,
+		tb.manager_two,
+		tb.area,
+		tb.area_name,
+		tb.payment_cycle,
+		tb.maintenance,
+		tb.project,
+		tb.friend_id,
+		tb.address,
+		tb.statu,
+		tb.status,
+		tb.proc_id,
+		tb.abandon,
+		tb.prone_text,
+		tb.prtwo_text,
+		tb.prthree_text,
+		tb.prfour_text,
+		tb.prfive_text,
+		tb.create_by,
+		tb.create_date,
+		tb.update_by,
+		tb.update_date,
+		u.name AS "createBy.name",
+		tb.ename
+	</sql>
+	<sql id="ContractJoins">
+		JOIN sys_user u ON u.id=tb.create_by
+    </sql>
+    <select id="get" resultType="Contract">
+		SELECT 
+			<include refid="ContractColumns"/>
+		FROM tb_contract tb
+		<include refid="ContractJoins"/>
+		WHERE tb.id = #{id}
+	</select>
+	<select id="selectContractToAssociated" resultType="Contract" parameterType="String">
+		SELECT 
+			<include refid="ContractColumns"/>
+		FROM tb_contract tb
+		<include refid="ContractJoins"/>
+		WHERE tb.contract_apply=#{contractApply} 
+			AND tb.contract_type='0' 
+	</select>
+	<select id="findList" resultType="Contract" >
+    SELECT 
+		<include refid="ContractColumns"/>
+	FROM tb_contract tb
+	<include refid="ContractJoins"/>
+	WHERE tb.del_flag = "0" 
+	<if test="contractApply != null and contractApply != ''">
+		and tb.contract_apply = #{contractApply}
+	</if>
+	ORDER BY tb.create_date DESC
+   </select>
+   
+   <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Contract"  parameterType="String" >
+    SELECT 
+		<include refid="ContractColumns"/>
+	FROM tb_contract tb
+		left JOIN sys_user u ON u.id = tb.create_by 
+  		left JOIN sys_office o ON o.id = u.office_id 
+   		left JOIN sys_area sa ON sa.id = o.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   <select id="findEmployeesList" resultType="Contract">
+   		SELECT 
+		<include refid="ContractColumns"/>
+		FROM tb_contract tb
+		<include refid="ContractJoins"/>
+		WHERE tb.del_flag = "0" and tb.statu = "审核通过"
+		<if test="st != null and st != ''">
+			and tb.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and tb.create_date &lt; #{et}
+		</if>
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			and tb.create_by = #{createBy.id}
+		</if>
+		ORDER BY tb.create_date DESC
+   </select>
+   <select id="findContract" resultType="Contract" >
+   SELECT 
+		<include refid="ContractColumns"/>
+	FROM tb_contract tb
+	<include refid="ContractJoins"/>
+	WHERE tb.del_flag = "0" and tb.statu = "审核通过"
+	<if test="contractApply != null and contractApply != ''">
+		and tb.contract_apply = #{contractApply}
+	</if>
+	ORDER BY tb.create_ate DESCd
+   </select>
+	<!-- 根据区域id获取区域名称 -->
+	<select id="selectAreaById" resultType="String" parameterType="String">
+		SELECT name
+		FROM sys_area
+		WHERE id=#{id}
+	</select>
+	<update id="update">
+		UPDATE tb_contract SET 
+			contract_date = #{contractDate},
+			contract_type = #{contractType},
+			contract_num = #{contractNum},
+			contract_name = #{contractName},
+			money = #{money},
+			company_name = #{companyName},
+			contract_limit = #{contractLimit},
+			cooperation_content = #{cooperationContent},
+			gross_margin = #{grossMargin},
+			settlement = #{settlement},
+			responsibility = #{responsibility},
+			other = #{other},
+			manager = #{manager},
+			manager_two = #{managerTwo},
+			area = #{area},
+			area_name = #{areaName},
+			payment_cycle = #{paymentCycle},
+			maintenance = #{maintenance},
+			project = #{project},
+			friend_id = #{friendId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_contract SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_contract SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_contract SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_contract SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfiveText">
+		UPDATE tb_contract SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsixText">
+		UPDATE tb_contract SET 
+			prsix_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsevenText">
+		UPDATE tb_contract SET 
+			prseven_text = #{prsevenText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_contract SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatus">
+		UPDATE tb_contract SET 
+			status = #{status}
+		WHERE id = #{id}
+	</update>
+	<update id="delete">
+		UPDATE tb_contract SET
+			del_flag='1'
+		WHERE id=#{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<select id="getByProcInsId" resultType="Contract">
+		SELECT 
+		<include refid="ContractColumns"/>
+	FROM tb_contract tb
+	<include refid="ContractJoins"/>
+	WHERE tb.proc_ins_id = #{procInsId}
+	</select>
+	<select id="selectCount" resultType="GetSaleCount">
+		SELECT time,count
+		FROM tb_contract_count
+	</select>
+	<update id="updateCount">
+		UPDATE tb_contract_count 
+		SET time = #{time},
+			count = #{count}
+	</update>
+	<update id="abandon">
+		UPDATE tb_contract
+		SET proc_id = #{procId},
+		status = #{status},
+		abandon = #{abandon}
+		WHERE id = #{id}
+	</update>
+	<update id="withdraw" parameterType="String">
+		UPDATE tb_contract
+		SET del_flag = "1"
+		WHERE id=#{id}
+	</update>
+	<!-- 用户撤回数据后，删除数据，并且待办任务中过滤掉所有的待办任务 -->
+	<select id="selectProcInsId" resultType="String">
+		select proc_ins_id
+		from tb_contract
+		where statu='撤回'
+	</select>
+
+	<!--根据申请人姓名查询所属部门-->
+	<select id="findOfficeByName" resultType="String">
+		SELECT
+			name
+		FROM sys_office a
+		WHERE id = (SELECT office_id FROM sys_user WHERE id = #{name})
+	</select>
+
+	<!--根据产品经理id查询产品经理名字	-->
+	<select id="getManagerName" resultType="String">
+		SELECT
+			name
+		FROM sys_user
+		WHERE id = #{id}
+	</select>
+</mapper>

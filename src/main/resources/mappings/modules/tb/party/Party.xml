@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.party.dao.PartyDao">
+	<insert id="insert">
+		INSERT into tb_party(
+			id,
+			title,
+			office_id,
+			office_name,
+			count,
+			plan_time,
+			plan_count,
+			available_funds,
+			budget,
+			notes,
+			statu,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		)VALUES(
+			#{id},
+			#{title},
+			#{officeId},
+			#{officeName},
+			#{count},
+			#{planTime},
+			#{planCount},
+			#{availableFunds},
+			#{budget},
+			#{notes},
+			'审核中',
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			"0"
+		)
+	</insert>
+	<sql id="partyColumn">
+		p.id,
+		p.proc_ins_id,
+		p.title,
+		p.office_id,
+		p.office_name,
+		p.count,
+		p.plan_time,
+		p.plan_count,
+		p.available_funds,
+		p.budget,
+		p.notes,
+		p.statu,
+		p.status,
+		p.create_by,
+		p.create_date,
+		p.update_by,
+		p.update_date,
+		u.name AS "createBy.name"
+		
+	</sql>
+	<select id="findList" parameterType="Party" resultType="Party">
+		select 
+		<include refid="partyColumn"></include>
+		FROM tb_party p
+		LEFT JOIN sys_user u ON p.create_by=u.id
+		WHERE p.del_flag = "0"
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			AND p.create_by =#{createBy.id}
+		</if>
+		order by p.update_date DESC
+	</select>
+	<update id="update" parameterType="Party">
+		UPDATE tb_party
+		SET title=#{title},
+			office_id=#{officeId},
+			office_name=#{officeName},
+			count=#{count},
+			plan_time=#{planTime},
+			plan_count=#{planCount},
+			available_funds=#{availableFunds},
+			budget=#{budget},
+			notes=#{notes},
+			update_by=#{updateBy.id},
+			update_date=#{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="delete" parameterType="Party">
+		UPDATE tb_party
+		SET del_flag='1'
+		WHERE id=#{id}
+	</update>
+	<select id="get" resultType="Party">
+		SELECT
+		<include refid="partyColumn"></include>
+		FROM tb_party p
+		LEFT JOIN sys_user u ON p.create_by = u.id
+		WHERE p.id = #{id}
+	</select>
+	<select id="getByProcInsId" resultType="Party" parameterType="String">
+		SELECT
+		<include refid="partyColumn"></include>
+		FROM tb_party p
+		LEFT JOIN sys_user u ON p.create_by = u.id
+		WHERE p.proc_ins_id = #{procInsId}
+	</select>
+	<select id="selectTaskId" resultType="String">
+		SELECT ID_ 
+		FROM act_ru_task
+		WHERE PROC_INST_ID_ = #{procInsId}
+	</select>
+	<update id="updateStatu">
+		UPDATE tb_party SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatus">
+		UPDATE tb_party SET 
+			status = "1"
+		WHERE id = #{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+
+<!--查询所有数据	-->
+	<select id="getAllList" resultType="Party">
+		SELECT
+			*
+		FROM tb_party
+	</select>
+</mapper>

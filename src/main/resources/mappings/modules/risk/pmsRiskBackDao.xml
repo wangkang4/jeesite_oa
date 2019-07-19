@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.thinkgem.jeesite.modules.risk.dao.RiskInfoBackDao"> 
+		<select id="findRiskBackByRiskInfoId"   resultType="RiskBack"  parameterType="java.lang.String">
+			SELECT 
+				rf.id AS "id",
+				rf.solve_time AS "solveTime",
+				rf.risk_content AS "riskContent",	
+				rf.risk_id AS "riskId",
+				ri.risk_name AS "riskInfo.riskName",
+				pm.project_name AS "riskInfo.pmsPro.projectName",
+				ri.risk_probability AS "riskInfo.riskPro",
+				ri.risk_influence AS "riskInfo.riskInfu",
+				ri.expecte_start_time AS "riskInfo.expecteTime",
+				ri.risk_type AS "riskInfo.riskType",
+				ri.risk_state AS "riskInfo.riskState",
+				su.name AS "riskInfo.user.name"
+			FROM
+			    pm_risk_information ri
+				left join			pm_risk_feedback rf 	 on rf.risk_id=ri.id
+				left join  pm_project_main pm 	on pm.id=ri.project_id
+				left join sys_user	su on ri.response_id=su.id 
+			where
+				ri.id=#{id}
+		</select>
+			<update id="updateRiskBack"  parameterType="RiskBack">
+				UPDATE
+					pm_risk_feedback  
+				SET
+					solve_time =#{solveTime},
+					risk_content=#{riskContent},
+					update_date=#{updateDate}
+				where
+					risk_id=#{riskId}
+			</update>
+			<insert id="addRiskBack" parameterType="RiskBack">
+				INSERT 
+					INTO
+						pm_risk_feedback (
+						id,
+						risk_id,
+						solve_time,
+						risk_content,
+						create_date,
+						create_by,
+						update_date,
+						update_by,
+						del_flag)
+					VALUES(
+						#{id},
+						#{riskId},
+						#{solveTime},
+						#{riskContent},
+						#{createDate},
+						#{createBy.id},
+						#{updateDate},
+						#{updateBy.id},
+						"0")
+			</insert>
+
+</mapper> 

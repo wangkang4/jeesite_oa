@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.CustomerContactDao">
+	<!-- 查询联系人 -->
+	<select id="findList" resultType="CustomerContact" parameterType="CustomerContact">
+   		SELECT p.customer_contact_id AS 'customerContactId',
+   			p.customer_contact_name AS 'customerContactName',
+   			p.code_name AS 'codeName',
+   			p.phone,
+   			p.weixin,
+   			p.email,
+   			p.position,
+   			p.birthday,
+   			p.interest,
+   			p.customer_character AS 'customerCharacter',
+   			p.note, 
+   			p.customer_id AS 'customer.customerId',
+   			c.customer_name AS 'customer.customerName'
+   		FROM pms_customer_contact p 
+   		LEFT JOIN pms_customer c ON p.customer_id=c.customer_id
+   		WHERE p.del_flag = '0'
+   		<if test="customer!=null and customer.customerId!='' and customer.customerId != null">
+			AND p.customer_id = #{customer.customerId}
+		</if>
+		<if test="customerContactName!='' and customerContactName != null">
+				AND p.customer_contact_name like CONCAT('%', #{customerContactName}, '%')
+		</if>
+		ORDER BY p.create_date DESC
+   	</select>
+   	<!-- 添加联系人 -->
+   	<insert id="insertContact" parameterType="CustomerContact">
+   		INSERT INTO pms_customer_contact(
+   			customer_contact_id,
+   			customer_id,
+   			customer_contact_name,
+   			code_name,
+   			phone,
+   			weixin,
+   			email,
+   			position,
+   			birthday,
+   			interest,
+   			customer_character,
+   			note,
+   			create_date,
+   			create_by,
+   			update_date,
+   			update_by,
+   			del_flag
+   		)VALUES(
+   			#{customerContactId},
+   			#{customer.customerId},
+   			#{customerContactName},
+   			#{codeName},
+   			#{phone},
+   			#{weixin},
+   			#{email},
+   			#{position},
+   			#{birthday},
+   			#{interest},
+   			#{customerCharacter},
+   			#{note},
+   			now(),
+   			#{createBy.id},
+   			now(),
+   			#{updateBy.id},
+   			'0'
+   		)
+   	</insert>
+   	<!-- 根据联系人id查询联系人 -->
+	<select id="findContactByContactId" resultType="CustomerContact" parameterType="String">
+   		SELECT p.customer_contact_id AS 'customerContactId',
+   			p.customer_contact_name AS 'customerContactName',
+   			p.code_name AS 'codeName',
+   			p.phone,
+   			p.weixin,
+   			p.email,
+   			p.position,
+   			p.birthday,
+   			p.interest,
+   			p.customer_character AS 'customerCharacter',
+   			p.note, 
+   			p.customer_id AS 'customer.customerId',
+   			c.customer_name AS 'customer.customerName'
+   		FROM pms_customer_contact p 
+   		LEFT JOIN pms_customer c ON p.customer_id=c.customer_id
+   		WHERE p.del_flag = '0' AND p.customer_contact_id = #{customerContactId}
+	</select>
+	<!-- 修改联系人 -->
+	<update id="updateContact" parameterType="CustomerContact">
+		UPDATE pms_customer_contact
+		SET customer_contact_name = #{customerContactName},
+			code_name = #{codeName},
+			customer_id = #{customer.customerId},
+			phone = #{phone},
+			weixin = #{weixin},
+			email = #{email},
+			position = #{position},
+			birthday = #{birthday},
+			interest = #{interest},
+			customer_character = #{customerCharacter},
+			note = #{note},
+			update_by = #{updateBy.id},
+			update_date = now() 
+		WHERE customer_contact_id = #{customerContactId}
+	</update>
+	<!-- 根据联系人id删除联系人 -->
+	<update id="deleteCustomerContact" parameterType="String">
+		UPDATE pms_customer_contact
+		SET del_flag = '1'
+		WHERE customer_contact_id = #{customerContactId}
+	</update>
+	<!-- 查询所有的联系人 -->
+	<select id="selectContact" resultType="CustomerContact">
+		SELECT customer_id AS 'customer.customerId',
+				customer_contact_id AS 'customerContactId',
+				customer_contact_name AS 'customerContactName'
+		FROM pms_customer_contact
+		WHERE del_flag = '0'
+	</select>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.expense.dao.CostDescriptionDao">
+	
+	<select id="findById" parameterType="String" resultType="com.thinkgem.jeesite.modules.expense.entity.CostDescription">
+		select * from expense_description where cost_type_id=#{costTypeId};
+	</select>
+	
+	<select id="findByOne" parameterType="String" resultType="String">
+		select cost_description from expense_description where cost_description_id=#{costDescriptionId};
+	</select>
+	
+	<select id="findCostDescription" resultType="com.thinkgem.jeesite.modules.expense.entity.CostDescription">
+		select * from expense_description;
+	</select>
+	
+	<select id="findByCostTypeId" parameterType="string" resultType="com.thinkgem.jeesite.modules.expense.entity.CostDescription">
+		select * from expense_description where cost_type_id=#{costTypeId} order by length(cost_description);
+	</select>
+	
+	<update id="updateDescription" parameterType="String">
+		UPDATE expense_detail
+		SET cost_type_id = #{costTypeId},
+		cost_type = #{costType},
+		cost_description = #{costDescription},
+		cost_description_id = #{costDescriptionId}
+		WHERE detail_id = #{detailId}
+	</update>
+	
+</mapper>

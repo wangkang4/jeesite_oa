@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mobile.fileupload.dao.MobileFileUploadDao">
+
+
+	<insert id="savetomysql" parameterType="FileUploadResult">
+		INSERT INTO t_attachment(
+			id,
+			name,
+			atta_path,
+			atta_size,
+			creater_id,
+			creater_time
+		) VALUES (
+			#{id},
+			#{fileOriginalFilename},
+			#{fileFinalPath},
+			#{size},
+			#{createrid},
+			#{creatertime}
+		)
+	</insert>
+
+	<update id="change" parameterType="FileUploadResult">
+		UPDATE t_attachment SET 
+			prof_id = #{profId}, 
+			prof_type = #{profType}, 
+			creater_id = #{createrid}
+		WHERE id = #{id}
+	</update>
+
+	<select id="getFileList" resultType="FileUploadResult">
+		select 
+			id,
+			name AS fileOriginalFilename,
+			atta_path AS fileFinalPath,
+			atta_size AS size,
+			creater_id,
+			creater_time
+		from t_attachment
+		where prof_id = #{id}
+	</select>
+
+</mapper>

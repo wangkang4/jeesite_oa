@@ -1,0 +1,46 @@
+table tr td .select{
+       	  	width:400px;          
+          }
+		#upload{
+			width:100px;
+			height:45px;
+			background: #63b5e4;
+			border: none;
+		}
+     .inputFileWrapper label{
+            display: block;
+            float: left;
+            position: relative;
+        }
+        .inputFileWrapper input[type="file"]{
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            clip:rect(0,0,0,0);
+        }
+        .inputFileWrapper .custorm-style{
+            display: block;
+            width: 290px;
+            height: 50px;
+        }
+        .inputFileWrapper .custorm-style .left-button{
+            width: 80px;
+            line-height: 50px;
+            background: #008ac7;
+            color: #fff;
+            display: block;
+            text-align: center;
+            float: left;
+        }
+        .inputFileWrapper .custorm-style .right-text{
+            width: 150px;
+            height: 40px;
+            line-height: 50px;
+            display: block;
+            padding: 4px;
+            border: 1px solid #008ac7;
+            overflow: hidden;
+            -ms-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }

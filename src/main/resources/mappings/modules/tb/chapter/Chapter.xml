@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.chapter.dao.ChapterDao">
+
+  
+  <insert id="insert">
+  	INSERT INTO tb_chapter(
+  		id,
+  		user_id,
+  		office_id,
+  		reason,
+  		apply_date,
+  		chapter_time,
+  		return_date,
+  		chapter_type,
+  		file_for_chapter,
+  		reason_for_borrow,
+  		number_for_file,
+  		place_of_user,
+  		file_type,
+  		address,
+  		statu,
+  		contract_id,
+  		create_by, 
+		create_date, 
+		update_by, 
+		update_date, 
+		remarks, 
+		del_flag
+  	) VALUES(
+  		#{id},
+  		#{user.id},
+  		#{office.id},
+  		#{reason},
+  		#{applyDate},
+  		#{chapterTime},
+  		#{returnDate},
+  		#{chapterType},
+  		#{fileForChapter},
+  		#{reasonForBorrow},
+  		#{numberForFile},
+  		#{placeOfUser},
+  		#{fileType},
+  		#{address},
+  		'审核中',
+  		#{contractId},
+  		#{createBy.id},
+  		#{createDate},
+  		#{updateBy.id},
+  		#{updateDate},
+  		#{remarks},
+  		#{delFlag}
+  	)
+  </insert>
+  <sql id="ChapterJoins">
+		JOIN sys_user su ON su.id=c.user_id
+		JOIN sys_office so ON so.id=c.office_id
+    </sql>
+    <sql id="ChapterColumns">
+    	c.id,
+		c.proc_ins_id AS 'procInsId',
+		su.id AS 'user.id',
+		su.name AS 'user.name',
+		so.id AS 'office.id',
+		so.name AS 'office.name',
+		c.contract_id AS 'contractId',
+		
+		c.reason,
+		c.apply_date AS 'applyDate',
+		c.chapter_time AS 'chapterTime',
+		c.return_date AS 'returnDate',
+		c.chapter_type AS 'chapterType',
+		c.file_for_chapter AS 'fileForChapter',
+		c.reason_for_borrow AS 'reasonForBorrow',
+		c.number_for_file AS 'numberForFile',
+		c.place_of_user AS 'placeOfUser',
+		c.file_type AS 'fileType',
+		c.address,
+		c.prone_text AS 'proneText',
+		c.prtwo_text AS 'prtwoText',
+		c.prthree_text AS 'prthreeText',
+		c.prfour_text AS 'prfourText',
+		c.prfive_text AS 'prfiveText',
+		c.prsix_text AS 'prsixText',
+		c.statu
+    </sql>
+    <select id="get" resultType="Chapter">
+		SELECT 
+			<include refid="ChapterColumns"/>
+		FROM tb_chapter c
+			<include refid="ChapterJoins"/>
+		WHERE c.id = #{id}
+	</select>
+  <select id="findList" resultType="Chapter" >
+    SELECT 
+		<include refid="ChapterColumns"/>
+	FROM tb_chapter c
+	<include refid="ChapterJoins"/>
+	WHERE c.del_flag = "0" 
+	<if test="user != null and user.id != null and user.id != ''">
+		and su.id = #{user.id}
+	</if>
+	ORDER BY c.create_date DESC
+   </select>
+   
+   <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Chapter"  parameterType="String" >
+    SELECT 
+		<include refid="ChapterColumns"/>
+	FROM tb_chapter c
+		left JOIN sys_user su ON su.id = c.create_by 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   <select id="findEmployeesList" resultType="Chapter" >
+    SELECT 
+		<include refid="ChapterColumns"/>
+	FROM tb_chapter c
+	<include refid="ChapterJoins"/>
+	WHERE c.del_flag = "0" and c.statu = "审核通过"
+	<if test="st != null and st != ''">
+			and c.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and c.create_date &lt; #{et}
+		</if>
+		<if test="createBy != null and createBy.id != null and createBy.id != ''">
+			and c.create_by = #{createBy.id}
+		</if>
+	ORDER BY c.create_date DESC
+   </select>
+   <!-- 查询章的种类 -->
+   <select id="selectChapterType" resultType="ChapterType">
+   		SELECT id, 
+   				chapter_type AS 'type'
+   		FROM tb_chapter_type
+   </select>
+   <!-- 查询用印文件的种类 -->
+   <select id="selectFileType" resultType="ChapterType">
+   		SELECT id, 
+   				file_type AS 'type'
+   		FROM tb_chapter_file_type
+   </select>
+  <update id="update">
+		UPDATE tb_chapter SET 
+			user_id = #{user.id}, 
+			office_id = #{office.id},
+			reason = #{reason},
+			apply_date = #{applyDate},
+			chapter_time = #{chapterTime},
+			return_date = #{returnDate},
+			chapter_type = #{chapterType},
+			file_for_chapter = #{fileForChapter},
+			reason_for_borrow = #{reasonForBorrow},
+			number_for_file = #{numberForFile},
+			place_of_user = #{placeOfUser},
+			file_type = #{fileType},
+			address = #{address},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			prone_text = #{proneText},   
+			prtwo_text = #{prtwoText},
+			prthree_text = #{proneText},   
+			prfour_text = #{prtwoText},
+			prfive_text = #{prfiveText}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_chapter SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_chapter SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_chapter SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_chapter SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_chapter SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfiveText">
+		UPDATE tb_chapter SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsixText">
+		UPDATE tb_chapter SET 
+			prsix_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<select id="getByProcInsId" resultType="Chapter">
+		SELECT 
+			<include refid="ChapterColumns"/>
+		FROM tb_chapter c
+		<include refid="ChapterJoins"/>
+		WHERE c.proc_ins_id = #{procInsId}
+	</select>
+	<update id="delete">
+		UPDATE tb_chapter SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 验证印章是否有被外借使用 -->
+	<select id="findChapterUse" resultType="int" parameterType="String">
+		SELECT 
+			COUNT(1)
+		FROM tb_chapter c
+		WHERE c.statu = '审核中' 
+		AND c.chapter_type = #{ct} 
+		AND place_of_user='2'
+		AND c.del_flag = "0"
+	</select>
+	<!-- 获取章的名字 -->
+	<select id="findChapterUseName" resultType="String" parameterType="String">
+		SELECT 
+			chapter_type
+		FROM tb_chapter_type ct
+		WHERE ct.id = #{ctName}
+	</select>
+</mapper>

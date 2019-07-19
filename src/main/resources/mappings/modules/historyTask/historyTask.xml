@@ -1,0 +1,1571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.historyTask.dao.HistoryTaskDao">
+   
+   
+<!--*****************************查询总数***********************************-->
+<select id="findNewCont" resultType="Integer" >
+SELECT COUNT(1) FROM (
+		
+	select reason from (
+<!-- /*报销*/ -->
+	(select gs.reason, gs.proc_ins_id AS procId  
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason, gs.proc_ins_id AS procId  
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason, tc.proc_ins_id AS procId  
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason, tb.proc_ins_id AS procId  
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason, al.proc_ins_id AS procId  
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason, ts.proc_ins_id AS procId  
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason, tb.proc_ins_id AS procId  
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason, tp.proc_ins_id AS procId  
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason, tc.proc_ins_id AS procId  
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason, tl.proc_ins_id AS procId  
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason, tp.proc_ins_id AS procId  
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason, ts.proc_ins_id AS procId  
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason, tt.proc_ins_id AS procId  
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason, td.proc_ins_id AS procId  
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason, ti.proc_ins_id AS procId  
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason, tq.proc_ins_id AS procId  
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason, tt.proc_ins_id AS procId  
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason, tp.proc_ins_id AS procId  
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{loginName} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	  	)) rs  
+	GROUP By rs.procId 
+) AA
+
+</select>
+	
+	
+<!--***********************查询数据内容	******************************-->
+	
+<select id="findNewPages" resultType="HistoryTask" >
+	select * from (
+<!-- /*报销*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,ahi.END_TIME_ AS cdDate,al.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,ahi.END_TIME_ AS cdDate,tl.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,ahi.END_TIME_ AS cdDate,td.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,ahi.END_TIME_ AS cdDate,ti.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,ahi.END_TIME_ AS cdDate,tq.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed' 
+	and aha.ACT_TYPE_='userTask'
+	order by  cdDate desc
+	)
+) rs
+GROUP By rs.procId 
+order by rs.cdDate desc limit #{0},#{1}
+
+
+</select>
+
+
+<!-- 查询数量 -->
+<select id="findNewContIndex" resultType="Integer" >
+SELECT COUNT(1) FROM (
+		
+	select reason from (
+<!-- /*报销*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId  	
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and gs.create_by = #{1}
+	
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId  	
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and gs.create_by = #{1}
+	
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,  tc.proc_ins_id AS procId  	
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tc.create_by = #{1}
+	
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,  tb.proc_ins_id AS procId  	
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tb.create_by = #{1}
+	
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,  al.proc_ins_id AS procId  	
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and al.create_by = #{1}
+	
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,  ts.proc_ins_id AS procId  	
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and ts.create_by = #{1}
+	
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,  tb.proc_ins_id AS procId  	
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tb.create_by = #{1}
+	
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,  tp.proc_ins_id AS procId  	
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tp.create_by = #{1}
+	
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,  tc.proc_ins_id AS procId  	
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tc.create_by = #{1}
+	
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,  tl.proc_ins_id AS procId  	
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tl.create_by = #{1}
+	
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,  tp.proc_ins_id AS procId  	
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tp.create_by = #{1}
+	
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,  ts.proc_ins_id AS procId  	
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and ts.create_by = #{1}
+	
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,  tt.proc_ins_id AS procId  	
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tt.create_by = #{1}
+	
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,  td.proc_ins_id AS procId  	
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and td.create_by = #{1}
+	
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,  ti.proc_ins_id AS procId  	
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and ti.create_by = #{1}
+	
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,  tq.proc_ins_id AS procId  	
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tq.create_by = #{1}
+	
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,  tt.proc_ins_id AS procId  	
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tt.create_by = #{1}
+	
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,  tp.proc_ins_id AS procId  	
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0} <!-- and aha.ACT_ID_ != 'end' --> and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	and tp.create_by = #{1}
+	)
+) rs  
+GROUP By rs.procId ) AA
+
+</select>
+	
+	<!--***********************查询搜索人数据内容	******************************-->
+	
+<select id="findNewPagesIndex" resultType="HistoryTask" >
+	select * from (
+<!-- /*报销*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and gs.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and gs.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tc.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tb.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,ahi.END_TIME_ AS cdDate,al.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and al.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and ts.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tb.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tp.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end'  --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tc.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,ahi.END_TIME_ AS cdDate,tl.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tl.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tp.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and ts.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tt.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,ahi.END_TIME_ AS cdDate,td.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and td.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,ahi.END_TIME_ AS cdDate,ti.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and ti.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,ahi.END_TIME_ AS cdDate,tq.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tq.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent'
+	<if test="#{3} != null and #{3} != ''">
+			and tt.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} <!-- and aha.ACT_ID_ != 'end' --> and aha.ACT_TYPE_='startEvent' 
+	<if test="#{3} != null and #{3} != ''">
+			and tp.create_by = #{3}
+	</if>
+	order by  cdDate desc
+	)
+) rs
+GROUP By rs.procId 
+order by rs.cdDate desc limit #{0},#{1}
+
+</select>
+
+<!-- **********************标题搜索数据************************** -->
+<!-- **********************标题搜索数据************************** -->
+<!-- **********************标题搜索数据************************** -->
+<select id="findNewPagesTitle" resultType="HistoryTask" >
+	select * from (
+<!-- /*报销*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,ahi.END_TIME_ AS cdDate,al.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2} and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,ahi.END_TIME_ AS cdDate,tl.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,ahi.END_TIME_ AS cdDate,td.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,ahi.END_TIME_ AS cdDate,ti.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,ahi.END_TIME_ AS cdDate,tq.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId 
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent' 
+	
+	order by  cdDate desc
+	)
+) rs where rs.reason like  CONCAT(CONCAT('%', #{3}), '%')
+GROUP By rs.procId 
+order by rs.cdDate desc limit #{0},#{1}
+
+</select>
+
+
+<!-- 标题获取数量 -->
+<select id="findNewContTitle" resultType="Integer" >
+SELECT COUNT(1) FROM (
+		
+	select reason from (
+<!-- /*报销*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId  	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId  	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,  tc.proc_ins_id AS procId  	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,  tb.proc_ins_id AS procId  	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,  al.proc_ins_id AS procId  	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,  ts.proc_ins_id AS procId  	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,  tb.proc_ins_id AS procId  	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,  tp.proc_ins_id AS procId  	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,  tc.proc_ins_id AS procId  	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,  tl.proc_ins_id AS procId  	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,  tp.proc_ins_id AS procId  	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,  ts.proc_ins_id AS procId  	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,  tt.proc_ins_id AS procId  	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,  td.proc_ins_id AS procId  	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,  ti.proc_ins_id AS procId  	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,  tq.proc_ins_id AS procId  	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,  tt.proc_ins_id AS procId  	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,  tp.proc_ins_id AS procId  	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+) rs  
+where rs.reason like CONCAT(CONCAT('%', #{1}), '%')
+GROUP By rs.procId ) AA
+
+</select>
+
+
+
+
+
+
+<!-- 获取taskId -->
+<select id="findTaskId" resultType="String">
+	select ACT.ID_ from(
+	select * from act_hi_taskinst
+	where PROC_INST_ID_=#{0} and ASSIGNEE_=#{1}
+	order by END_TIME_ desc limit 1) ACT
+</select>
+
+<!-- 获取任务定义Key -->
+<select id="findTaskDefKey" resultType="String">
+	SELECT ACT.ACT_ID_ FROM (
+	select ACT_ID_ from act_hi_actinst
+	where PROC_INST_ID_=#{0} and ASSIGNEE_=#{1}
+	order by END_TIME_ desc limit 1) ACT
+</select>
+	
+<select id="findPrdName" resultType="String">
+	SELECT NAME_ FROM
+	act_re_procdef
+	WHERE ID_=#{prdId}
+</select>
+
+
+
+<!-- 流程名搜索数目 -->
+<select id="findNewContPreceName" resultType="Integer" >
+	SELECT COUNT(1) FROM (
+		
+	select reason from (
+<!-- /*报销*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,  gs.proc_ins_id AS procId, art.NAME_ AS preceName   	
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,  tc.proc_ins_id AS procId, art.NAME_ AS preceName   	
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,  tb.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,  al.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,  ts.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,  tb.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,  tp.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,  tc.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,  tl.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,  tp.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,  ts.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,  tt.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,  td.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,  ti.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,  tq.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,  tt.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,  tp.proc_ins_id AS procId, art.NAME_ AS preceName  	
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{0}   and ahi.DELETE_REASON_='completed'  and aha.ACT_TYPE_='startEvent'
+	
+	)
+) rs  
+where rs.preceName like CONCAT(CONCAT('%', #{1}), '%')
+GROUP By rs.procId ) AA
+
+</select>
+
+
+<!-- **********************标题搜索数据************************** -->
+<select id="findNewPagesPreceName" resultType="HistoryTask">
+	select * from (
+<!-- /*报销*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from get_sale gs 
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*加班*/ -->
+	(select gs.reason,ahi.END_TIME_ AS cdDate,gs.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from over_time gs
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = gs.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*用印*/ -->
+	(select tc.reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_chapter tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*借款*/ -->
+	(select tb.title as reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_borrowing tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*请假*/ -->
+	(select al.reason,ahi.END_TIME_ AS cdDate,al.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from activity_leave2 al
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = al.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = al.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专项费用申请*/ -->
+	(select ts.reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_special ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*业务招待费用申请*/ -->
+	(select tb.reason,ahi.END_TIME_ AS cdDate,tb.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_business tb
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tb.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*对外付款申请*/ -->
+	(select tp.reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_pay tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*合同申请*/ -->
+	(select tc.contract_name AS reason,ahi.END_TIME_ AS cdDate,tc.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_contract tc
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tc.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*证照申请*/ -->
+	(select tl.title AS reason,ahi.END_TIME_ AS cdDate,tl.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_licenses tl
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tl.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*采购申请*/ -->
+	(select tp.p_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_purchase tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*印章刻制*/ -->
+	(select ts.title AS reason,ahi.END_TIME_ AS cdDate,ts.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_signet ts
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ts.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*开发票申请*/ -->
+	(select tt.tax_name AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_ticket tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*自驾车出差*/ -->
+	(select td.title AS reason,ahi.END_TIME_ AS cdDate,td.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_driving td
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = td.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = td.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*入职申请*/ -->
+	(select ti.title AS reason,ahi.END_TIME_ AS cdDate,ti.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_induction ti
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = ti.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*离职申请*/ -->
+	(select tq.reason,ahi.END_TIME_ AS cdDate,tq.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_quit tq
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tq.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*出差申请*/ -->
+	(select tt.project AS reason,ahi.END_TIME_ AS cdDate,tt.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_travel tt
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tt.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent'
+	
+	order by  cdDate desc
+	)
+UNION
+<!-- /*专利申请*/ -->
+	(select tp.patent_name AS reason,ahi.END_TIME_ AS cdDate,tp.proc_ins_id AS procId,aha.PROC_DEF_ID_ AS prdId, art.NAME_ AS preceName 
+	from tb_patent tp
+	left join act_hi_taskinst ahi on ahi.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_hi_actinst aha on aha.PROC_INST_ID_ = tp.proc_ins_id
+	left join act_re_procdef art on ahi.PROC_DEF_ID_ = art.ID_
+	where ahi.ASSIGNEE_ = #{2}  and aha.ACT_TYPE_='startEvent' 
+	
+	order by  cdDate desc
+	)
+) rs where rs.preceName like  CONCAT(CONCAT('%', #{3}), '%')
+GROUP By rs.procId 
+order by rs.cdDate desc limit #{0},#{1}
+
+</select>
+	
+</mapper>

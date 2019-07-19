@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.CostExcel.dao.ProjectDao">
+	
+	<sql id="projectColumns"> 
+		p.id AS "id",
+		p.project_name AS "projectName",
+		p.project_manager AS "projectManager.id",
+		u.name AS "projectManager.name",
+		p.project_client_id AS "client.id",
+		c.client_name AS "client.clientName",
+		c.client_company AS "client.clientCompany",
+		c.client_manager_name AS "client.clientManagerName",
+		c.client_manager_sex AS "client.clientManagerSex",
+		c.client_manager_phone AS "client.clientManagerPhone",
+		c.content AS "client.content",
+		p.project_money AS "projectMoney",
+		p.creater_by AS "createrBy.id",
+		p.creater_time AS "createrTime"
+	</sql>
+	
+	<sql id="ProjectJoins">
+		left join sys_user u on u.id = p.project_manager
+		left join oa_client c on c.id = p.project_client_id
+	</sql>
+	
+	<select id="findList" resultType="Project" parameterType="Project">
+		select 
+			<include refid="projectColumns"/>
+		from oa_client_project p
+			<include refid="ProjectJoins"/>
+		where 1=1
+<!-- 		<if test="createrBy != null and createrBy != ''"> -->
+<!-- 		    and c.creater_by = #{createrBy.id} -->
+<!-- 		</if> -->
+<!-- 		<if test="type != null and type != ''"> -->
+<!-- 		    and c.type = #{type} -->
+<!-- 		</if> -->
+		order by p.creater_time desc
+	</select>
+	
+	<select id="getById" parameterType="String" resultType="Project">
+		select 
+			<include refid="projectColumns"/>
+		from oa_client_project p
+			<include refid="ProjectJoins"/>
+		where p.id = #{id}
+	</select>
+	
+	<insert id="addProject">
+		insert into oa_client_project 
+		(
+			id,
+			project_name,
+			project_manager,
+			project_client_id,
+			project_money,
+			creater_by,
+			creater_time
+		)
+		value
+		(
+			#{id},
+			#{projectName},
+			#{projectManager.id},
+			#{client.id},
+			#{projectMoney},
+			#{createrBy.id},
+			#{createrTime}
+		)
+	</insert>
+	
+	<delete id="deleteProject">
+		delete from oa_client_project
+		where id=#{id}
+	</delete>
+	
+	<update id="updateProject" parameterType="Project">
+		update oa_client_project set
+			project_name = #{projectName},
+			project_manager = #{projectManager.id},
+			project_client_id = #{client.id},
+			project_money = #{projectMoney}
+		where id = #{id}
+	</update>
+	
+	<select id="getProjectList" parameterType="String" resultType="Project">
+		select 
+			id,project_name
+		from oa_client_project
+		where project_client_id = #{clientId}
+	</select>
+	
+	<select id="getProjectName" parameterType="String" resultType="String">
+		select 
+			project_name
+		from oa_client_project
+		where id=#{projectId}
+	</select>
+	
+	<select id="getProjectId" parameterType="String"  resultType="String">
+		select 
+			id
+		from oa_client_project
+		where project_name = #{projectName}
+	</select>
+</mapper>

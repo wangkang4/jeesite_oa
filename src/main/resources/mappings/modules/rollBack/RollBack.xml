@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.common.mapper.insertRollBack.RollBack">
+
+  
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	
+	<insert id="insertRollBack" parameterType="String">
+		INSERT INTO get_sale_rollback(
+			task_id,
+			process
+		)VALUES(
+			#{taskId},
+			#{process}
+		)
+	</insert>
+	<select id="selectRollBack" resultType="String">
+		SELECT task_id
+		FROM get_sale_rollback
+	</select>
+	<select id="selectHistoryPROC" resultType="HistoryPROC">
+	SELECT aht.NAME_ AS 'name',aht.ASSIGNEE_ AS 'assignee',aht.END_TIME_ AS 'endTime',ahc.MESSAGE_ AS 'message'
+	FROM act_hi_taskinst aht
+	JOIN act_hi_comment ahc on aht.ID_=ahc.TASK_ID_
+	WHERE aht.PROC_INST_ID_ = #{procInstId}
+	ORDER BY aht.END_TIME_
+	</select>
+	<update id="withdraw" parameterType="String">
+		UPDATE ${tableName}
+		SET del_flag = "1",
+			statu = "撤回"
+		WHERE id=#{id}
+	</update>
+	<select id="selectProc" parameterType="String" resultType="String">
+		SELECT proc_ins_id 
+		FROM ${tableName}
+		WHERE id = #{id}
+	</select>
+	<delete id="deleteTaskByProc">
+		DELETE FROM ACT_RU_TASK
+		WHERE PROC_INST_ID_ = #{proc}
+	</delete>
+</mapper>

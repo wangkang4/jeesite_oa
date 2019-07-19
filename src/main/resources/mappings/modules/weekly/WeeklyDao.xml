@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.weekly.dao.WeeklyDao">
+    
+    <select id="getWeekNum" resultType="Integer">
+       select count(creater_id) from t_weekly;
+    </select>
+    
+	<sql id="weeklyColumns">
+		a.id AS "id",
+		a.day_time AS "daytime",
+		a.day_content AS "daycontent",
+		a.plan_content AS "plancontent",
+		a.remark AS "remark",
+		a.creater_id AS "createrid",
+		a.creater_time AS "creatertime",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<select id="get" resultType="Weekly">
+		SELECT 
+			<include refid="weeklyColumns"/>
+		FROM t_weekly a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Weekly">
+		SELECT 
+			<include refid="weeklyColumns"/>
+		FROM t_weekly a
+			where a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="daytime != null and daytime != ''">
+			AND a.day_time = #{daytime}
+		</if>
+		<if test="user != null and user.id != null and user.id != ''">
+		    and a.creater_id = #{user.id}
+		</if>
+		<!-- <if test="projectName != null and projectName != ''">
+			AND a.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{projectName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{projectName}, '%')</if>
+		</if> -->
+		order by a.creater_time desc
+	</select>
+	
+	<select id="findAllList" resultType="Weekly">
+		SELECT 
+			<include refid="weeklyColumns"/>
+		FROM t_weekly a
+			where a.del_flag = #{DEL_FLAG_NORMAL}		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_weekly(
+			id,
+			day_time,
+			day_content,
+			plan_content,
+			remark,
+			creater_id,
+			creater_time,
+			del_flag,
+			remarks
+		) VALUES (
+			#{id},
+			#{daytime},
+			#{daycontent},
+			#{plancontent},
+			#{remark},
+			#{createrid},
+			#{creatertime},
+			#{delFlag},
+			#{remarks}
+		)
+	</insert>
+	
+	<insert id="addweekly">
+		INSERT INTO t_weekly(
+			id,
+			day_time,
+			day_content,
+			plan_content,
+			remark,
+			creater_id,
+			creater_time,
+			del_flag,
+			remarks
+		) VALUES (
+			#{id},
+			#{daytime},
+			#{daycontent},
+			#{plancontent},
+			#{remark},
+			#{createrid},
+			#{creatertime},
+			#{delFlag},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_weekly SET 	
+			day_content = #{daycontent},
+			plan_content = #{plancontent},
+			remark = #{remark},
+			creater_id = #{createrid},
+			creater_time = #{creatertime},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_weekly SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getdaily" resultType="TDaily">
+		select 
+			day_time AS "dayTime",
+			performance AS "performance",
+			day_content AS  "dayContent",
+			remark AS "remark"
+		from t_daily 
+		where creater_id = #{user.id} and del_flag = 0
+		<if test=" startTime != null and startTime != ''">
+			<![CDATA[ and creater_time >= #{startTime}  ]]>
+		</if>
+		<if test="endTime != null and endTime != ''">
+		  	<![CDATA[ and creater_time < #{endTime}  ]]>
+		</if>
+	</select>
+	
+	<delete id="deleteonefile" parameterType="String">
+		delete from t_attachment 
+		where id = #{str3}
+	</delete>
+	
+	<insert id="saveFileToMysql">
+		INSERT INTO t_attachment(
+			id,
+			name,
+			atta_path,
+			atta_size,
+			prof_type,
+			prof_id,
+			creater_id,
+			creater_time
+		) VALUES (
+			#{id},
+			#{name},
+			#{attapath},
+			#{attasize},
+			#{proftype},
+			#{profid},
+			#{createrid},
+			#{creatertime}
+		)
+	</insert>
+			
+	<select id="getonefile" parameterType="String" resultType="FileModel">
+		select 
+			a.id AS "id",
+			a.name AS "name",
+			a.atta_path AS "attapath",
+			a.atta_size AS "attasize",
+			a.prof_type AS "proftype",
+			a.prof_id AS "profid",
+			a.creater_id AS "createrid",
+			a.creater_time AS "creatertime"
+		from t_attachment a
+		where a.id = #{str3}
+	</select>
+	
+	<select id="getallfile" parameterType="String" resultType="FileModel">
+		select 
+			a.id AS "id",
+			a.name AS "name",
+			a.atta_path AS "attapath",
+			a.atta_size AS "attasize",
+			a.prof_type AS "proftype",
+			a.creater_id AS "createrid",
+			a.creater_time AS "creatertime"
+		from t_attachment a
+			where a.prof_id = #{weeklyid}
+	</select>
+	
+	<select id="getofficeName" parameterType="String" resultType="String">
+		select name 
+		from sys_user
+		where id = #{str1}
+	</select>
+	
+	<select id="getone" parameterType="String" resultType="Weekly">
+		select 
+			<include refid="weeklyColumns"/>
+		from t_weekly a
+		where a.id = #{str1}
+	</select>
+</mapper>

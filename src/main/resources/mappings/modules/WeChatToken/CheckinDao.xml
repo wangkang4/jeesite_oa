@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.WeChat.dao.CheckinDao">
+	<insert id="saveCheckinList">
+		INSERT INTO checkin_wx (
+			userid,
+			groupname,
+			checkin_type,
+			exception_type,
+			checkin_time,
+			location_title,
+			location_detail,
+			wifiname,
+			notes,
+			wifimac
+		)
+		VALUES
+		<foreach collection="list" item="userList" index="index" separator=",">
+			(#{userList.userid},
+			#{userList.groupname},
+			#{userList.checkin_type},
+			#{userList.exception_type},
+			#{userList.checkin_time},
+			#{userList.location_title},
+			#{userList.location_detail},
+			#{userList.wifiname},
+			#{userList.notes},
+			#{userList.wifimac})
+		</foreach>
+	</insert>
+</mapper>

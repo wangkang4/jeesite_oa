@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.weekly.dao.UploadDao">
+    
+    <sql id="attachmentColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.atta_path AS "attapath",
+		a.atta_size AS "attasize",
+		a.prof_type AS "proftype",
+		a.prof_id AS "profid",
+		a.creater_id AS "createrid",
+		a.creater_time AS "creatertime"
+	</sql>
+    
+	<insert id="saveFileToMysql">
+		INSERT INTO t_attachment(
+			id,
+			name,
+			atta_path,
+			atta_size,
+			creater_id,
+			creater_time
+		) VALUES (
+			#{id},
+			#{name},
+			#{attapath},
+			#{attasize},
+			#{createrid},
+			#{creatertime}
+		)
+	</insert>
+	
+	<delete id="deleteFileToMysql" parameterType="String">
+		delete from t_attachment 
+		where id = #{fileid}
+	</delete>
+	
+	<select id="getonefile" parameterType="String" resultType="FileModel">
+		select 
+			<include refid="attachmentColumns"/>
+		from t_attachment a
+		where a.id = #{fileid}
+	</select>
+	
+	<select id="getfiles" resultType="FileModel">
+		select 
+			<include refid="attachmentColumns"/>
+		from t_attachment a
+		where 1=1
+	</select>
+	
+</mapper>

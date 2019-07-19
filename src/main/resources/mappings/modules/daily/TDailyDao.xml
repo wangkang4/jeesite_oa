@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.daily.dao.TDailyDao">
+
+	<sql id="tdailyColumns">
+		d.id AS "id",
+		d.day_time AS "dayTime",
+		d.performance AS
+		"performance",
+		d.day_content AS
+		"dayContent",
+		d.plan_content AS
+		"planContent",
+		d.remark AS 
+		"remark",
+		d.creater_id AS
+		"user.id",
+		d.creater_time AS
+		"createrTime",
+
+		d.create_by AS
+		"createBy.id",
+		d.create_date AS
+		"createDate",
+		d.update_by AS
+		"updateBy.id",
+		d.update_date AS
+		"updateDate",
+		d.remarks AS "remarks",
+		d.del_flag AS "delFlag",
+		u2.photo
+		AS "user.photo",
+		u2.name AS "user.name"
+	</sql>
+
+	<sql id="sysJoins">
+		LEFT JOIN sys_user u2 ON u2.id = d.creater_id
+	</sql>
+
+	<select id="get" resultType="TDaily">
+		select
+		d.id AS "id",
+		d.day_time AS
+		"dayTime",
+		d.performance AS
+		"performance",
+		d.day_content AS
+		"dayContent",
+		d.plan_content AS
+		"planContent",
+		d.remark AS
+		"remark",
+		d.creater_id AS
+		"user.id",
+		d.creater_time AS
+		"createrTime",
+
+		d.create_by AS
+		"createBy.id",
+		d.create_date AS
+		"createDate",
+		d.update_by AS
+		"updateBy.id",
+		d.update_date AS
+		"updateDate",
+		d.remarks AS "remarks",
+		d.del_flag AS
+		"delFlag",
+		u2.name AS "sendName"
+		from t_daily d
+		LEFT JOIN sys_user u2 ON u2.id = d.creater_id
+		where d.id = #{id} and
+		d.del_flag = 0
+	</select>
+
+	<select id="getByTDaily" resultType="TDaily">
+		select
+		<include refid="tdailyColumns" />
+		from t_daily d
+		LEFT JOIN sys_user u2 ON u2.id = d.creater_id
+		where d.del_flag =
+		#{DEL_FLAG_NORMAL}
+		<if test="createrTime !=null and createrTime!=''">
+			and d.creater_time = #{createrTime}
+		</if>
+
+	</select>
+
+	<select id="findList" resultType="TDaily">
+		select
+		<include refid="tdailyColumns" />
+		from t_daily d
+		LEFT JOIN sys_user u2 ON u2.id = d.creater_id
+		where d.del_flag =
+		#{DEL_FLAG_NORMAL}
+		<if test="user != null and user.id != null and user.id != ''">
+			and d.creater_id = #{user.id}
+		</if>
+		order by d.creater_time desc
+	</select>
+
+	<insert id="insert">
+		insert into t_daily(
+		id,
+		day_time,
+		performance,
+		day_content,
+		plan_content,
+		remark,
+		creater_id,
+		creater_time,
+
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) values(
+		#{id},
+		#{dayTime},
+		#{performance},
+		#{dayContent},
+		#{planContent},
+		#{remark},
+		#{user.id},
+		#{createrTime},
+
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		update t_daily set
+		performance =
+		#{performance},
+		day_content = #{dayContent},
+		plan_content =
+		#{planContent},
+		remarks = #{remarks},
+		remark = #{remark}
+		where id = #{id}
+	</update>
+
+	<update id="delete">
+		update t_daily set
+		del_flag = #{DEL_FLAG_DELETE}
+		where
+		id = #{id}
+	</update>
+
+	<select id="getMobileDaily" resultType="TDaily">
+		select
+		<include refid="tdailyColumns" />
+		from t_daily d
+		LEFT JOIN sys_user u2 ON u2.id = d.creater_id
+		where d.del_flag =
+		#{DEL_FLAG_NORMAL}
+		<if test="user != null and user.id != null and user.id != ''">
+			and d.creater_id = #{user.id}
+		</if>
+		order by d.creater_time DESC
+	</select>
+
+	<select id="getofficeName" parameterType="String" resultType="String">
+		select name
+		from sys_user
+		where id = #{str1}
+	</select>
+
+</mapper>

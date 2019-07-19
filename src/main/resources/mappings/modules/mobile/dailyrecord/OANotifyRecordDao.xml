@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mobile.dailyrecord.dao.OANotifyRecordDao">
+	
+	<sql id="oaNotifyRecordColumns">
+		o.id,
+		o.oa_notify_id AS "oaNotify.id",
+		n.type AS "oaNotify.type",
+		n.title AS "oaNotify.title",
+		n.content AS "oaNotify.content",
+		n.create_date AS "oaNotify.createDate",
+		o.user_id AS "user.id",
+		o.read_flag AS "readFlag",
+		o.read_date AS "readDate"
+	</sql>
+	
+	<sql id="oaNotifyJoins">
+		left join oa_notify n on n.id = o.oa_notify_id
+	</sql>
+	
+	<select id="getall" parameterType="OaNotifyRecord" resultType="OaNotifyRecord">
+		select 
+			<include refid="oaNotifyRecordColumns" />
+		from oa_notify_record o
+			<include refid="oaNotifyJoins" />
+		where o.user_id = #{user.id} and n.del_flag = 0
+		order by n.create_date DESC
+	</select>
+	
+	<select id="gettypename" parameterType="String" resultType="String">
+		select 
+			label
+		from sys_dict
+		where type="oa_notify_type" AND value =#{type}
+	</select>
+	
+	<select id="getOaNotify" parameterType="String" resultType="OaNotify">
+		select 
+			id,
+			type,
+			title,
+			content,
+			files,
+			create_date AS "createDate"
+		from oa_notify 
+		where id = #{id}
+	</select>
+
+	<select id="getonefile" parameterType="String" resultType="FileUploadResult">
+		select 
+			a.id AS "id",
+			a.name AS "fileOriginalFilename",
+			a.atta_path AS "fileFinalPath",
+			a.atta_size AS "size",
+			a.prof_type AS "profType",
+			a.prof_id AS "profId",
+			a.creater_id AS "createrid"
+		from t_attachment a
+		where a.id = #{id}
+	</select>
+
+</mapper>

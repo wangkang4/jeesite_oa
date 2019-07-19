@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.risk.dao.RiskInfoDao">
+    
+    
+    			
+    
+    <select id="findList"  resultType="RiskInfo"  parameterType="RiskInfo">
+    select
+    	r.id AS "id",
+		r.project_id AS "proId",
+		p.project_name AS "pmsPro.projectName",
+		s.name AS "user.name",
+		r.risk_name AS "riskName",
+		r.risk_probability  AS "riskPro",
+		r.risk_influence AS "riskInfu",
+        r.response_id AS "responseId",
+		r.expecte_start_time AS "expecteTime",
+		r.risk_type AS "riskType",
+		r.risk_state AS "riskState",
+		
+		r.start_time  AS "startTime",
+		r.end_time AS "endTime",
+		r.risk_describe AS "riskDescrible",
+		r.solve_programme  AS "solveProgramme",
+		
+		
+		r.create_by AS "createBy.id",
+		r.create_date AS "createDate",
+		r.update_by AS "updateBy.id",
+		r.update_date AS "updateDate",
+		r.del_flag AS "delFlag"
+	from 
+		pm_risk_information r	
+		left join pm_project_main p on p.id = r.project_id
+		left join sys_user s on s.id=r.response_id 
+	where r.del_flag != "1"
+	<if test="pmsPro!=null " >
+		<if test="pmsPro.projectName !=null and pmsPro.projectName !='' "   >
+			and p.project_name like CONCAT ('%',#{pmsPro.projectName},'%')
+		</if>
+		</if>
+			<if test="riskState !=null and riskState!=''">
+			and r.risk_state =#{riskState}
+			</if>
+		order by r.create_date desc
+	</select>
+    <!-- 通过责任人名查找责任人id -->
+    <select	id="selectIdByResponseName"  resultType="java.lang.String"  parameterType="java.lang.String">
+    	select 
+    		id
+    	from 
+    		sys_user 
+    	where
+    		name=#{responseName}
+    </select>
+    <!-- 通过项目名称查找项目id -->
+    <select id="selectIdByProjectName" resultType="java.lang.String"  parameterType="java.lang.String">
+    	select 
+    		id
+    	from
+    		pm_project_main
+    	where
+    		project_name=#{projectName}
+    </select>
+    
+    <insert id="insertNewInfo"  parameterType="RiskInfo">
+    		INSERT  INTO
+    			pm_risk_information(
+    			id,
+    			project_id,
+    			risk_name,
+    			risk_probability,
+    			risk_influence,
+    			expecte_start_time,
+    			start_time,
+    			end_time,
+    			risk_type,
+    			risk_state,
+    			response_id,
+    			risk_describe,
+    			solve_programme,
+    			risk_answer,
+    			create_date,
+    			del_flag
+    			)
+    	values(
+    			#{id},
+    			#{proId},
+    			#{riskName},
+    			#{riskPro},
+    			#{riskInfu},
+    			#{expecteTime},
+    			#{startTime},
+    			#{endTime},
+    			#{riskType},
+    			#{riskState},
+    			#{responseId},
+    			#{riskDescrible},
+    			#{solveProgramme},
+    			#{riskAnswer},
+    			#{createDate},
+    			'0'
+    	)
+    </insert>
+    <update id="deleteRiskInfoByRiskId"  parameterType="java.lang.String">
+    	UPDATE
+    		pm_risk_information
+    	SET
+    		del_flag ="1"
+    	WHERE
+    		id=#{id}
+    </update>
+    
+    <!-- 通过id查找对应的风险信息 -->
+    <select id="findRiskInfoById"  resultType="RiskInfo" parameterType="java.lang.String">
+    	SELECT 
+    		r.id AS "id",
+			r.project_id AS "proId",
+			p.project_name AS "pmsPro.projectName",
+			s.name AS "user.name",
+			s.id AS "user.id",
+			r.risk_name AS "riskName",
+			r.risk_probability  AS "riskPro",
+			r.risk_influence AS "riskInfu",
+        	r.response_id AS "responseId",
+			r.expecte_start_time AS "expecteTime",
+			r.risk_type AS "riskType",
+			r.risk_state AS "riskState",
+			r.start_time  AS "startTime",
+			r.end_time AS "endTime",
+			r.risk_describe AS "riskDescrible",
+			r.solve_programme  AS "solveProgramme",
+			r.create_by AS "createBy.id",
+			r.create_date AS "createDate",
+			r.update_by AS "updateBy.id",
+			r.update_date AS "updateDate",
+			r.risk_answer AS "riskAnswer",
+			r.del_flag AS "delFlag"
+    	FROM
+    		pm_risk_information r	
+			left join pm_project_main p on p.id = r.project_id
+			left join sys_user s on s.id=r.response_id 
+    	WHERE
+    		r.id=#{id}
+    </select>
+    <!-- 通过风险id修改风险表的信息 -->
+    <update id="updateRiskInfoById"  parameterType="RiskInfo">
+    	UPDATE
+    		pm_risk_information
+    	SET
+    			risk_name = #{riskName},
+    			risk_probability =	#{riskPro},
+    			risk_influence =	#{riskInfu},
+    			expecte_start_time  =	#{expecteTime},
+    			start_time =	#{startTime},
+    			end_time =	#{endTime},
+    			risk_type =	#{riskType},
+    			risk_state =	#{riskState},
+    			response_id =	#{responseId},
+    			risk_describe =	#{riskDescrible},
+    			solve_programme =	#{solveProgramme},
+    			risk_answer =	#{riskAnswer},
+    			update_date=#{updateDate}
+    		WHERE
+    			id=#{id}
+    </update>
+    <select id="getProjectName"  resultType="java.lang.String">
+    	SELECT
+    		project_name
+    	FROM
+    		pm_project_main;
+    
+    
+    </select>
+    
+</mapper>

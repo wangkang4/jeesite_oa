@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.que.dao.QuestionFeedbackDao">
+	
+	<!-- 新增问题反馈 -->
+	<insert id="insertQuestionFeedback" 
+							parameterType="QuestionFeedback">
+		   INSERT INTO pm_problem_feedback(
+		   		id,
+		   		problem_id,
+		   		solve_time,
+		   		solve_programme,
+		   		remarks,
+		   		create_by,
+		   		create_date,
+		   		update_by,
+		   		update_date,		   		
+		   		del_flag
+		   )VALUES(
+		   		#{id},
+		   		#{problemId},
+		   		#{solveTime},
+		   		#{solveProgramme},
+		   		#{remarks},
+		   		#{createdName},
+		   		#{createdTime},
+		   		#{updateName},
+		   		#{updateTime},
+		   		#{deleteMark}
+		   )
+   </insert>
+   
+   <!-- 根据问题id查找问题反馈 -->
+   <select id="findQuestionFeedbackByProblemId" 
+   			resultType="QuestionFeedback">
+   		SELECT 
+	   			 id AS 'id',
+				 problem_id AS 'problemId',
+				 solve_time AS 'solveTime',
+				 solve_programme AS 'solveProgramme',
+				 remarks AS 'remarks',
+				 create_by AS 'createdName',
+				 create_date AS 'createdTime',
+				 update_by AS 'updateName',
+				 update_date AS 'updateTime',
+				 del_flag AS 'deleteMark'
+	   	FROM 
+	   			pm_problem_feedback
+	   	WHERE
+	   			problem_id=#{problemId}		   			
+   </select>
+   
+   <!-- 根据问题id修改问题反馈 -->
+   <update id="updateQuestionFeedback" 
+   				parameterType="QuestionFeedback">
+		UPDATE 
+				pm_problem_feedback
+		SET 		
+			<if test="solveTime!=null and solveTime!=''">
+				solve_time = #{solveTime},
+			</if>
+			<if test="solveProgramme!=null and solveProgramme!=''">
+   				solve_programme = #{solveProgramme},
+   			</if>
+   			<if test="remarks!=null and remarks!=''">
+   				remarks = #{remarks},
+   			</if>		
+	   		update_by=#{updateName},
+	   		update_date=#{updateTime}
+	   	WHERE 
+	   		problem_id=#{problemId}
+	</update>
+</mapper>

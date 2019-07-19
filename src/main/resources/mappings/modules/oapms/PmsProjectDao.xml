@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.PmsProjectDao">
+    
+    <!-- 查找所有的项目Id以及项目名称 -->
+    <select id="findIdAndName" resultType="PmsProject">
+      select project_id,project_name from pms_project
+    </select>
+    
+	<sql id="pmsProjectColumns">
+		a.project_id AS "projectId",
+		a.project_name AS "projectName",
+		a.customer_id AS "customer.customerId",
+		a.customer_contact_id AS "customerContact.customerContactId",
+		
+		cu.customer_name AS "customer.customerName",
+		cuco.customer_contact_name AS "customerContact.customerContactName",
+		
+		a.important_depende AS "importantDepende",
+		a.status AS "status",
+		a.progress AS "progress",
+		a.money AS "money",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.statusment_time AS "statusmentTime",
+		a.costomer_analysis AS "costomerAnalysis",
+		a.dec_mak_chain_analysis AS "decMakChainAnalysis",
+		a.competitors_analysis AS "competitorsAnalysis",
+		a.chance_point AS "chancePoint",
+		a.problem_point AS "problemPoint",
+		a.target AS "target",
+		a.market_strategy_tactics AS "marketStrategyTactics",
+		a.implementation_plan AS "implementationPlan",
+		a.resource_help‏ AS "resourceHelp",
+		a.product_type AS "productType",
+		
+		b.employees_id AS "saler.id",
+		c.employees_id AS "devloper.id",
+		d.employees_id AS "producter.id",
+		
+		a.create_by AS "createBy.id",
+		a.create_time AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_time AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="pmsProjectJoins">
+		left join pms_project_relativer b on b.id = a.project_id
+		left join pms_project_relativer c on c.id = a.project_id
+		left join pms_project_relativer d on d.id = a.project_id
+		left join pms_customer cu on cu.customer_id = a.customer_id
+		left join pms_customer_contact cuco on cuco.customer_contact_id = a.customer_contact_id
+	</sql>
+	
+	<select id="findList" resultType="PmsProject" parameterType="PmsProject">
+		SELECT 
+			<include refid="pmsProjectColumns"/>
+		FROM pms_project a
+			<include refid="pmsProjectJoins"/>
+		where a.del_flag = "0" 
+			and b.employees_type = "销售经理" 
+			and c.employees_type = "研发经理" 
+			and d.employees_type = "产品经理"
+		<if test=" projectName != null and projectName != ''">
+		    and a.project_name like CONCAT('%', #{projectName}, '%') 
+		</if>
+		<if test=" productType != null and productType != ''">
+		    and a.product_type = #{productType}
+		</if>
+		order by create_time desc
+	</select>
+	
+	<insert id="inserteOneProject">
+		INSERT INTO pms_project(
+			project_id,
+			project_name,
+			customer_id,
+			customer_contact_id,
+			status,
+			important_depende,
+			progress,
+			money,
+			start_time,
+			end_time,
+			statusment_time,
+			costomer_analysis,
+			dec_mak_chain_analysis,
+			competitors_analysis,
+			chance_point,
+			problem_point,
+			target,
+			market_strategy_tactics,
+			implementation_plan,
+			resource_help‏,
+			product_type,
+			create_by,
+			create_time,
+			update_by,
+			update_time,
+			del_flag
+		) VALUES (
+			#{projectId},
+			#{projectName},
+			#{customer.customerId},
+			#{customerContact.customerContactId},
+			#{status},
+			#{importantDepende},
+			#{progress},
+			#{money},
+			#{startTime},
+			#{endTime},
+			#{statusmentTime},
+			#{costomerAnalysis},
+			#{decMakChainAnalysis},
+			#{competitorsAnalysis},
+			#{chancePoint},
+			#{problemPoint},
+			#{target},
+			#{marketStrategyTactics},
+			#{implementationPlan},
+			#{resourceHelp},
+			#{productType},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<insert id="inserteRelativers">
+		INSERT INTO pms_project_relativer(
+			id,
+			relative_type,
+			employees_id,
+			employees_type
+		) VALUES 
+		(
+			#{Id},
+			#{relativeType},
+			#{employees.id},
+			#{employeesType}
+		)
+	</insert>
+	
+	<update id="deleteOneProject" parameterType="String">
+		UPDATE pms_project SET 	
+			del_flag = "1"
+		WHERE project_id = #{id}
+	</update>
+	
+	<select id="getOneProject" resultType="PmsProject" parameterType="String">
+		SELECT 
+			<include refid="pmsProjectColumns"/>
+		FROM pms_project a
+			<include refid="pmsProjectJoins"/>
+		where a.del_flag = "0" 
+			and b.employees_type = "销售经理" 
+			and c.employees_type = "产品经理" 
+			and d.employees_type = "研发经理"
+			and a.project_id = #{id}
+		order by create_time
+	</select>
+	
+	<select id="findPersonList" resultType="ProjectRelativer" parameterType="String">
+		select 
+			g.id,
+			g.relative_type,
+			g.employees_id AS "employees.id",
+			u.name AS "employees.name",
+			g.employees_type
+		from pms_project_relativer g
+			left join sys_user u on u.id = g.employees_id
+		where g.id = #{id} and g.employees_type = "相关人"
+	</select>
+	
+	
+	<update id="updateOneProject" parameterType="PmsProject">
+		update pms_project set 
+			project_name = #{projectName},
+			customer_id = #{customer.customerId},
+			customer_contact_id = #{customerContact.customerContactId},
+			status = #{status},
+			important_depende = #{importantDepende},
+			progress = #{progress},
+			money = #{money},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			statusment_time = #{statusmentTime},
+			costomer_analysis = #{costomerAnalysis},
+			dec_mak_chain_analysis = #{decMakChainAnalysis},
+			competitors_analysis = #{competitorsAnalysis},
+			chance_point = #{chancePoint},
+			problem_point = #{problemPoint},
+			target = #{target},
+			market_strategy_tactics = #{marketStrategyTactics},
+			implementation_plan = #{implementationPlan},
+			resource_help‏ = #{resourceHelp},
+			product_type = #{productType},
+			update_by = #{updateBy.id},
+			update_time = #{updateDate}
+		WHERE project_id = #{projectId}
+	</update>
+	
+	<delete id="deleteAllRelativers" parameterType="String">
+		delete from pms_project_relativer
+			where id = #{id}
+	</delete>
+	
+	<select id="findCustomerList" resultType="Customer">
+		select 
+			customer_id AS "customerId",
+			customer_name AS "customerName"
+		from pms_customer 
+		where del_flag = "0"
+	</select>
+	
+	<select id="findCustomerContactList" resultType="CustomerContact" parameterType="Customer">
+		select 
+			customer_contact_id AS "customerContactId",
+			customer_contact_name AS "customerContactName"
+		from pms_customer_contact 
+		where customer_id = #{customerId}
+			and del_flag = "0"
+	</select>
+	
+	<select id="findAllprListByProject" resultType="ProjectRelativer" parameterType="String">
+		select 
+			id AS "Id",
+			relative_type AS "relativeType",
+			employees_id AS "employees.id",
+			employees_type AS "employeesType"
+		from pms_project_relativer
+		where id = #{id}
+	</select>
+	<!-- ********************************************************************** -->
+	<sql id="highJoins">
+		LEFT JOIN 
+			(SELECT customer_id, industry,office,area,customer_name FROM pms_customer WHERE del_flag='0') c  
+			ON p.customer_id = c.customer_id
+		LEFT JOIN 
+			(SELECT money,project_id FROM pms_project_expense WHERE del_flag='0') e 
+			ON p.project_id = e.project_id
+	</sql>
+	
+	<!-- 行业-Y查询    王付成 -->
+	<select id="selectIndustryAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				c.industry AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY c.industry 
+	</select>
+	<!-- 办事处-Y查询    王付成 -->
+	<select id="selectOfficeAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				c.office AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY c.office 
+	</select>
+	<!-- 区域-Y查询    王付成 -->
+	<select id="selectAreaAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				c.area AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY c.area 
+	</select>
+	<!-- 客户-Y查询    王付成 -->
+	<select id="selectCustomerAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				c.customer_name AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY c.customer_id 
+	</select>
+	<!-- 销售经理-Y查询    王付成 -->
+	<select id="selectSalerAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				u.name AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		LEFT JOIN 
+			(SELECT id,employees_id FROM pms_project_relativer WHERE relative_type = '1' AND employees_type='销售经理') r
+		ON p.project_id=r.id
+		LEFT JOIN sys_user u ON r.employees_id=u.id
+		WHERE p.del_flag='0'
+		GROUP BY r.employees_id 
+	</select>
+	<!-- 产品经理-Y查询    王付成 -->
+	<select id="selectProducterAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				u.name AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		LEFT JOIN 
+			(SELECT id,employees_id FROM pms_project_relativer WHERE relative_type = '1' AND employees_type='产品经理') r
+		ON p.project_id=r.id
+		LEFT JOIN sys_user u ON r.employees_id=u.id
+		WHERE p.del_flag='0'
+		GROUP BY r.employees_id 
+	</select>
+	<!-- 时间-Y查询    王付成 -->
+	<select id="selectTimeAndY" resultType="HighchartsEntity" parameterType="String">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		AND date_format(create_time,'%Y%m')=concat(#{year},#{month})
+	</select>
+	<!-- 项目状态-Y查询    王付成 -->
+	<select id="selectStatusAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				p.status AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY p.status 
+	</select>
+	<!-- 产品类型-Y查询    王付成 -->
+	<select id="selectProductTypeAndY" resultType="HighchartsEntity">
+		SELECT SUM(p.money) AS 'sales',
+				COUNT(p.project_id) AS 'num', 
+				SUM(e.money) AS 'spending',
+				p.product_type AS 'category'
+		FROM pms_project p
+		<include refid="highJoins"/>
+		WHERE p.del_flag='0'
+		GROUP BY p.product_type
+	</select>
+</mapper>

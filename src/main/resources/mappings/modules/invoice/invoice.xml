@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.invoice.dao.InvoiceApplyDao">
+   
+    <sql id="InvoiceJoins">
+		JOIN sys_user su ON su.id=t.user_id
+		left join sys_user ss on ss.id = t.manage
+		left join sys_user so on so.id = t.off_person
+    </sql>
+    <sql id="InvoiceColumns">
+    	t.id,
+    	t.user_id,
+  		t.tax_name AS 'taxName',
+  		t.tax_number AS 'taxNumber',
+  		t.address,
+  		su.id AS 'user.id',
+  		su.name AS 'user.name',
+  		t.phone,
+  		t.bank,
+  		t.account,
+  		t.total,
+  		t.ma_address AS 'maAddress',
+  		t.col_person AS 'colPerson',
+  		t.col_phone AS 'colPhone',
+  		t.manage AS 'manage.id',
+  		t.off_person AS 'offPerson.id',
+  		ss.name AS 'manage.name',
+  		so.name AS 'offPerson.name',
+  		t.one_text AS 'oneText',
+  		t.prone_text AS 'proneText',
+  		t.prtwo_text AS 'prtwoText',
+  		t.report,
+  		t.statu,	    	
+		t.create_by AS 'createBy.id',
+		t.create_date AS 'createDate',
+		t.update_by AS 'updateBy.id',
+		t.update_date AS 'updateDate',	
+		t.del_flag AS 'delFlag'	,
+		t.apply_address AS 'applyAddress',
+		t.proc_ins_id,
+		t.proname,
+		t.invoice_statu AS 'invoiceStatu',
+		t.al_money AS 'alMoney',
+		t.now_money AS 'nowMoney',
+		t.invoice_date AS 'invoiceDate',
+		t.invoice_info AS 'invoiceInfo'
+   </sql>
+  
+ 	<!-- 查询当前人提交页面列表数据 -->
+   <select id="findList" resultType="InvoiceApply" >
+	    SELECT 
+			<include refid="InvoiceColumns"/>
+		FROM tb_ticket t
+		<include refid="InvoiceJoins"/>
+		WHERE t.del_flag = "0" 
+		<if test="user != null and user.id != null and user.id != ''">
+			and su.id = #{user.id}
+		</if>
+		ORDER BY t.create_date desc
+   </select>
+   
+   <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="InvoiceApply"  parameterType="String" >
+    SELECT 
+		<include refid="InvoiceColumns"/>
+	FROM tb_ticket t
+	    left join sys_user ss on ss.id = t.manage
+		left JOIN sys_user su ON su.id = t.create_by 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   <!-- 查询（项目经理/办事处负责人下）所有提交人员列表数据 -->
+   <select id="findAllList" resultType="InvoiceApply" >
+	    SELECT 
+			<include refid="InvoiceColumns"/>
+		FROM tb_ticket t
+			<include refid="InvoiceJoins"/>
+		WHERE  prone_text LIKE '%同意%'
+		AND manage=#{user.id} OR off_person=#{user.id}
+		ORDER BY t.create_date desc
+   </select>
+   <!-- 查询所有提交人员列表数据 -->
+   <select id="findAllList1" resultType="InvoiceApply" >
+	    SELECT 
+			<include refid="InvoiceColumns"/>
+		FROM tb_ticket t
+			<include refid="InvoiceJoins"/>
+		WHERE  t.del_flag = "0"
+		ORDER BY t.create_date desc
+   </select>
+   <!-- 通过id获取实体类数据信息 -->
+   <select id="get" resultType="InvoiceApply">
+		SELECT 
+			<include refid="InvoiceColumns"/>
+		FROM tb_ticket t
+			<include refid="InvoiceJoins"/>
+   		WHERE t.id=#{id}
+   </select>
+	
+	<!-- 插入数据库 -->
+  <insert id="insert">
+  	INSERT INTO tb_ticket(
+  		id,
+  		tax_name,
+  		tax_number,
+  		address,
+  		user_id,
+  		phone,
+  		bank,
+  		account,
+  		total,
+  		ma_address,
+  		col_person,
+  		col_phone,
+  		manage,
+  		off_person,
+  		one_text,
+  		prone_text,
+  		prtwo_text,
+  		report,
+  		statu,		  		
+  		create_by, 
+		create_date, 
+		update_by, 
+		update_date, 
+		remarks, 
+		del_flag,
+		apply_address,
+		proname,
+		invoice_statu,
+		al_money,
+		now_money,
+		invoice_info
+  	) VALUES(
+  		#{id},
+  		#{taxName},
+  		#{taxNumber},
+  		#{address},
+  		#{user.id},
+  		#{phone},
+  		#{bank},
+  		#{account},
+  		#{total},
+  		#{maAddress},
+  		#{colPerson},
+  		#{colPhone},
+  		#{manage.id},
+  		#{offPerson.id},
+  		#{oneText},
+  		#{proneText},
+  		#{prtwoText},
+  		#{report},
+  		'审核中',		  		
+  		#{createBy.id}, 
+		#{createDate}, 
+		#{updateBy.id},
+  		#{updateDate},
+  		#{remarks},
+  		#{delFlag},
+  		#{applyAddress},  
+  		#{proname},	
+  		#{invoiceStatu},
+  		#{alMoney},
+  		#{nowMoney},	
+  		#{invoiceInfo}
+  	)
+  </insert>
+  
+  <!-- 修改操作 -->
+  <update id="update">
+		UPDATE tb_ticket SET 
+			user_id = #{user.id}, 
+			tax_name=#{taxName}, 
+  			tax_number=#{taxNumber},
+  			address=#{address},
+  			user_id=#{user.id},
+  			phone=#{phone},
+  			bank=#{bank},
+  			account=#{account},
+  			total=#{total},
+	  		ma_address=#{maAddress},
+	  		col_person=#{colPerson},
+	  		col_phone=#{colPhone},
+	  		manage=#{manage.id},
+	  		off_person=#{offPerson.id},
+	  		one_text=#{oneText},
+	  		prone_text=#{proneText},
+	  		prtwo_text=#{prtwoText},
+	  		report=#{report},	  		
+			update_by=#{updateBy.id}, 
+			update_date=#{updateDate}, 
+			remarks=#{remarks}, 
+			del_flag=#{delFlag},	
+			proname=#{proname},
+			invoice_statu=#{invoiceStatu},
+			al_money=#{alMoney},
+			now_money=#{nowMoney},
+			invoice_info=#{invoiceInfo}
+		WHERE id = #{id}
+	</update>
+	<!-- 状态修改 -->
+	<update id="updateStatu">
+		UPDATE tb_ticket SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 商务部长意见修改 -->
+	<update id="updateOneText">
+		UPDATE tb_ticket SET 
+			one_text = #{oneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 办事处负责人意见修改 -->
+	<update id="updateProneText">
+		UPDATE tb_ticket SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 开票人意见修改 -->
+	<update id="updatePrtwoText">
+		UPDATE tb_ticket SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate},
+			invoice_date=#{invoiceDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 撤销申请操作 -->
+  	<update id="delete">
+		UPDATE tb_ticket SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<!-- 流转信息查询 -->
+	<select id="getByProcInsId" resultType="InvoiceApply">
+		SELECT 
+			<include refid="InvoiceColumns"/>
+		FROM tb_ticket t
+		<include refid="InvoiceJoins"/>
+		WHERE t.proc_ins_id = #{procInsId}
+	</select>
+	
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+  
+  	<delete id="deleteInvoiceApply">
+   		DELETE FROM
+   		tb_ticket 
+   		WHERE proc_ins_id=#{procInsId} 
+   </delete>
+   <delete id="deleteTask">
+   		DELETE FROM
+   		act_ru_task 
+   		WHERE PROC_INST_ID_=#{procInstId} 
+   </delete>
+</mapper>

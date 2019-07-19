@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.CostExcel.dao.ClientDao">
+	
+<!-- 	<sql id="clientColumns"> -->
+<!-- 		c.id AS "client.id", -->
+<!-- 		c.client_name AS "client.clientName", -->
+<!-- 		c.client_company AS "client.clientCompany", -->
+<!-- 		c.client_manager_name AS "client.clientManagerName", -->
+<!-- 		c.client_manager_sex AS "client.clientManagerSex", -->
+<!-- 		c.client_manager_phone AS "client.clientManagerPhone", -->
+<!-- 		c.content AS "client.content", -->
+<!-- 		d.creater_by AS "createrBy.id", -->
+<!-- 		d.creater_time AS "createrTime", -->
+<!-- 		d.project_name AS "projectName", -->
+		
+<!-- 	</sql> -->
+	<sql id="clientColumns">
+		id AS "id",
+		client_name AS "clientName",
+		client_company AS "clientCompany",
+		client_manager_name AS "clientManagerName",
+		client_manager_sex AS "clientManagerSex",
+		client_manager_phone AS "clientManagerPhone",
+		content AS "content",
+		creater_by AS "createrBy.id",
+		creater_time AS "createrTime"
+	</sql>
+	
+	<select id="findList" resultType="Client" parameterType="Client">
+		select 
+			<include refid="clientColumns"/>
+		from oa_client
+		where 1=1
+<!-- 		<if test="createrBy != null and createrBy != ''"> -->
+<!-- 		    and c.creater_by = #{createrBy.id} -->
+<!-- 		</if> -->
+<!-- 		<if test="type != null and type != ''"> -->
+<!-- 		    and c.type = #{type} -->
+<!-- 		</if> -->
+		order by creater_time desc
+	</select>
+	
+	<select id="getById" resultType="Client" parameterType="String">
+		select 
+			<include refid="clientColumns"/>
+		from oa_client
+		where 1=1 and id = #{id}
+		order by creater_time desc
+	</select>
+	
+	<delete id="deleteById">
+		delete from oa_client
+		where id = #{id}
+	</delete>
+	
+	<insert id="addclient">
+		insert into oa_client
+		(
+			id,
+			client_name,
+			client_company,
+			client_manager_phone,
+			client_manager_sex,
+			client_manager_name,
+			content,
+			creater_by,
+			creater_time
+		)
+		value
+		(
+			#{id},
+			#{clientName},
+			#{clientCompany},
+			#{clientManagerPhone},
+			#{clientManagerSex},
+			#{clientManagerName},
+			#{content},
+			#{createrBy.id},
+			#{createrTime}
+		)
+	</insert>
+
+	<update id="updateclient" parameterType="Client">
+		update oa_client set
+			client_name = #{clientName},
+			client_company = #{clientCompany},
+			client_manager_phone = #{clientManagerPhone},
+			client_manager_sex = #{clientManagerSex},
+			client_manager_name = #{clientManagerName},
+			content = #{content}
+		where id = #{id}
+	</update>
+	
+	<select id="getClientList" resultType="Client">
+		select id,client_name
+		from oa_client
+	</select>
+	
+	<select id="getClientName" parameterType="String"  resultType="String">
+		select client_name
+		from oa_client
+		where id=#{clientId}
+	</select>
+	
+	<select id="getClientId" parameterType="String"  resultType="String">
+		select id 
+		from oa_client
+		where client_name = #{clientName}
+	</select>
+	
+</mapper>

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.leave.dao.ActivityLeave2Dao">
+
+	<sql id="activityLeave2Columns">
+		a.id,
+		a.proc_ins_id,
+		u.id AS "user.id", 
+		u.name AS "user.name", 
+		u.use_overtime_days AS "user.useOverTimeDays",
+		o.id AS "office.id", 
+		o.name AS "office.name",
+		a.start_time,
+		a.end_time,
+		a.leave_type,  
+		a.days,  
+		a.reason, 
+		a.notes,
+		a.pr_text,
+		a.leader_text,
+		a.leadertwo_text,
+		a.leaderthree_text,
+		a.hr_text,
+		a.status,
+		a.attachName,
+		a.attachAddress,
+		a.create_by AS "createBy.id", 
+		a.create_date, 
+		a.update_by AS "updateBy.id", 
+		a.update_date, 
+		a.remarks, 
+		a.del_flag
+	</sql>
+
+	<sql id="activityLeave2Joins">
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON o.id=a.office_id
+    </sql>
+
+	<select id="getOfficeNameByUserId" resultType="String">
+		SELECT 
+			so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL}
+		and su.id = #{id}
+	</select>
+
+	<select id="getOfficeByUserId" resultType="Office">
+		SELECT 
+			so.id,so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE su.id = #{id}
+<!-- 		and so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL} -->
+	</select>
+	<select id="get" resultType="ActivityLeave2">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM activity_leave2 a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ActivityLeave2">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM activity_leave2 a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+					
+		<if test="  a==0 and user != null and user.id != null and user.id != ''">
+		and a.user_id = #{user.id}
+		</if>
+		<if test="a!=0">
+		and a.status="审核通过"
+		and a.a=#{a}
+		</if>
+<!-- 		and a.user_id = #{id} -->
+<!-- 		<if test="user != null and user.id != null and user.id != ''"> -->
+<!-- 			AND u.id LIKE  -->
+<!-- 					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if> -->
+<!-- 					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if> -->
+<!-- 					<if test="dbName == 'mysql'">CONCAT('%', #{user.id}, '%')</if> -->
+<!-- 		</if> -->
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="ActivityLeave2">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM activity_leave2 a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+				and a.status="审核通过"
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO activity_leave2(
+			id, 
+			a,
+			status,
+			user_id, 
+			office_id, 
+			start_time,
+			end_time,
+			leave_type,  
+			reason, 
+			notes,
+			days, 
+			attachName,
+			attachAddress,
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{a},
+			#{status},
+			#{user.id}, 
+			#{office.id}, 
+			#{startTime},
+			#{endTime},
+			#{leaveType},
+			#{reason}, 
+			#{notes},
+			#{days}, 
+			#{attachName},
+			#{attachAddress},
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE activity_leave2 SET 
+			user_id = #{user.id}, 
+			status = #{status},
+			office_id = #{office.id},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			leave_type = #{leaveType},  
+			notes = #{notes}, 
+			reason = #{reason}, 
+			days = #{days}, 
+			pr_text = #{prText},
+			leader_text = #{leaderText},
+			leadertwo_text = #{leadertwoText},
+			leaderthree_text=#{leaderthreeText},
+			hr_text=#{hrText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateRemoveDays" parameterType="com.thinkgem.jeesite.modules.leave.entity.ActivityLeave2">
+		UPDATE activity_leave2 SET 
+			remove_days = #{removeDays} 
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updatePrText">
+		UPDATE activity_leave2 SET 
+			status = #{status},
+			pr_text = #{prText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeaderText">
+		UPDATE activity_leave2 SET 
+			status = #{status},
+			leader_text = #{leaderText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeadertwoText">
+		UPDATE activity_leave2 SET 
+		status = #{status},
+			leadertwo_text = #{leadertwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeaderthreeText">
+		UPDATE activity_leave2 SET 
+			status = #{status},
+			leaderthree_text = #{leaderthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateHrText">
+		UPDATE activity_leave2 SET 
+		status = #{status},
+			hr_text = #{hrText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE activity_leave2 SET 
+			status="销毁",
+			del_flag ='1'
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getByProcInsId" resultType="ActivityLeave2">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM activity_leave2 a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+	
+	<select id="getTaskIdByPId"  resultType="String">
+		SELECT 
+			id_
+		FROM
+		 act_ru_task ar  
+		WHERE 
+			proc_inst_id_=#{pid}
+	</select>
+	
+	
+	<select id="findAttachNameByAttachAddress"  resultType="String" parameterType="String">
+		SELECT
+			attachName
+			FROM
+				activity_leave2
+			WHERE
+				attachAddress=#{attachAddress}
+				
+	
+	
+	</select>
+		
+	
+</mapper>

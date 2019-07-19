@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.travelApply.dao.TravelDao">
+	
+	<sql id="travelColumns">
+		t.id,
+		t.user_id,
+		t.office_id,
+		t.start_address AS 'startAddress',
+		t.end_address AS 'endAddress',
+		t.project,
+		t.start_date AS 'startDate',
+		t.end_date AS 'endDate',
+		t.day,
+		t.traffic,
+		t.person,
+		t.cause,
+		t.cost_one AS 'costOne',
+		t.cost_two AS 'costTwo',
+		t.cost_three AS 'costThree',
+		t.cost_four AS 'costFour',
+		t.all_cost AS 'allCost',
+		t.summary,
+		t.plan_id AS 'planId',
+		t.statu,
+		t.num,
+		t.prone_text AS 'proneText',
+		t.prtwo_text AS 'prtwoText',
+		t.create_by AS 'createBy.id',
+		t.create_date AS 'createDate',
+		t.update_by AS 'updateBy.id',
+		t.update_date AS 'updateDate',	
+		t.del_flag AS 'delFlag',
+		t.proc_ins_id,
+		su.id AS 'user.id',
+		so.id AS 'office.id',
+		su.name AS 'user.name',
+		so.name AS 'office.name'
+	</sql>
+	
+	<sql id="travelJoins">
+		JOIN sys_user su ON su.id=t.user_id
+		JOIN sys_office so ON so.id=t.office_id
+	</sql>
+
+	<!-- 获取数据操作 -->
+	 <select id="get" resultType="TravelApply">
+		SELECT 
+			<include refid="travelColumns"/>
+		FROM tb_travel t
+			<include refid="travelJoins"/>
+   		WHERE t.id=#{id}
+   </select>
+   
+    <!-- 主表插入数据库操作 -->
+	<insert id="insert">
+		INSERT INTO tb_travel(
+			id,
+			user_id,
+			office_id,
+			start_address,
+			end_address,
+			project,
+			start_date,
+			end_date,
+			day,
+			traffic,
+			person,
+			cause,
+			cost_one,
+			cost_two,
+			cost_three,
+			cost_four,
+			all_cost,
+			summary,
+			plan_id,
+			statu,
+			num,
+			prone_text,
+			prtwo_text,
+			create_by,
+			create_date,
+			update_by,
+			update_date,	
+			del_flag
+		)VALUES(
+			#{id},
+			#{user.id},
+			#{office.id},
+			#{startAddress},
+			#{endAddress},
+			#{project},
+			#{startDate},
+			#{endDate},
+			#{day},
+			#{traffic},
+			#{person},
+			#{cause},
+			#{costOne},
+			#{costTwo},
+			#{costThree},
+			#{costFour},
+			#{allCost},
+			#{summary},
+			#{planId},
+			#{statu},
+			#{num},
+			#{proneText},
+			#{prtwoText},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0'
+		)
+	</insert>
+	
+	<!-- 修改操作 -->
+	<update id="update">
+		UPDATE tb_travel SET
+			user_id=#{user.id},
+			office_id=#{office.id},
+			start_address=#{startAddress},
+			end_address=#{endAddress},
+			project=#{project},
+			start_date=#{startDate},
+			end_date=#{endDate},
+			day=#{day},
+			traffic=#{traffic},
+			person=#{person},
+			cause=#{cause},
+			cost_one=#{costOne},
+			cost_two=#{costTwo},
+			cost_three=#{costThree},
+			cost_four=#{costFour},
+			all_cost=#{allCost},
+			summary=#{summary},
+			plan_id=#{planId},
+			statu=#{statu},
+			prone_text=#{proneText},
+			prtwo_text=#{prtwoText},
+			update_by=#{updateBy.id}, 
+			update_date=#{updateDate}, 
+			remarks=#{remarks}, 
+			del_flag=#{delFlag}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 负表插入数据库操作 -->
+	<insert id="insertPlan" >
+		INSERT INTO tb_travleplan(
+			id,
+			plan_date,
+			customer_name,
+			content
+		)VALUES(
+			#{id},
+			#{planDate},
+			#{customerName},
+			#{content}
+		)
+	</insert>
+	
+	<!-- 删除附表操作 -->
+	<delete id="deletePlan">
+  		DELETE 
+  		FROM tb_travleplan
+  		WHERE id = #{id}
+    </delete>
+   
+   <!-- 查询列表 -->
+	<select id="findList" resultType="TravelApply">
+			SELECT 
+		<include refid="travelColumns"/>
+			FROM tb_travel t
+		<include refid="travelJoins"/>
+			WHERE t.del_flag = "0" 
+		<if test="user != null and user.id != null and user.id != ''">
+			and su.id = #{user.id}
+		</if>
+			ORDER BY t.create_date desc
+	</select>
+	
+	<!--行政人员查看所属区域申请列表 -->
+    <select id="findList3" resultType="TravelApply"  parameterType="String" >
+    SELECT 
+		<include refid="travelColumns"/>
+	FROM tb_travel t
+		left JOIN sys_user su ON su.id = t.create_by 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+	
+	<!-- 状态修改 -->
+	<update id="updateStatu">
+		UPDATE tb_travel SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	
+	<!-- 第一个审核人的意见插入 -->
+	<update id="updateProneText">
+		UPDATE tb_travel SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 第二个审核人的意见插入 -->
+	<update id="updatePrtwoText">
+		UPDATE tb_travel SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 流转信息查询 -->
+	<select id="getByProcInsId" resultType="TravelApply">
+		SELECT 
+			<include refid="travelColumns"/>
+		FROM tb_travel t
+		<include refid="travelJoins"/>
+		WHERE t.proc_ins_id = #{procInsId}
+	</select>
+   
+   <!-- 根据id查询附表信息 -->
+	<select id="findPlan" resultType="com.thinkgem.jeesite.modules.tb.travelApply.entity.TravelPlan" parameterType="String">
+			SELECT 
+			   plan_date,
+			   customer_name,
+			   content
+			FROM tb_travleplan 
+			WHERE id = #{id} 
+	</select>
+	
+	<!-- 销毁 -->
+	 <delete id="deletetravelApply">
+   		DELETE FROM
+   		tb_travel
+   		WHERE proc_ins_id=#{procInsId} 
+   </delete>
+   <delete id="deleteTask">
+   		DELETE FROM
+   		act_ru_task 
+   		WHERE PROC_INST_ID_=#{procInstId} 
+   </delete>
+   
+   <select id="selectNum" resultType="Integer" parameterType="String">
+   		SELECT count(id)
+   		FROM tb_travel
+   		WHERE num=#{num} and statu='审核通过'
+   </select>
+
+
+<!--财务人员查看所有信息-->
+	<select id="findListCaiWu" resultType="TravelApply">
+		SELECT
+		<include refid="travelColumns"/>
+		FROM tb_travel t
+		left JOIN sys_user su ON su.id = t.create_by
+		left JOIN sys_office so ON so.id = su.office_id
+		left JOIN sys_area sa ON sa.id = so.area_id
+	</select>
+</mapper>

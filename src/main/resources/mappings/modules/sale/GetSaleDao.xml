@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.sale.dao.GetSaleDao">
+
+   <select id="findPages" resultType="GetSale">
+        SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} and a.status = 1
+		ORDER BY a.create_date DESC
+   </select>
+   <!-- 财务查看所有数据 -->
+   <select id="findCWPage" resultType="GetSale">
+   		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} <!-- and a.status = 1 -->
+		<!-- and a.statu in("审核通过","已付账") -->
+		<if test="st != null and st != ''">
+			and a.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and a.create_date &lt; #{et}
+		</if>
+		<if test="user != null and user.id != null and user.id != ''">
+			and a.user_id = #{user.id}
+		</if>
+		ORDER BY a.update_date DESC
+   </select>
+   
+    <select id="findDraft" resultType="GetSale" parameterType="GetSale">
+        SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} and a.status = 0 
+		<if test="user != null and user.id != null and user.id != ''">
+		AND u.id =#{user.id}
+		</if>			
+		ORDER BY a.create_date DESC
+   </select>
+
+	<sql id="activityLeave2Columns">
+		a.id,
+		a.proc_ins_id,
+		u.id AS "user.id", 
+		u.name AS "user.name", 
+		o.id AS "office.id", 
+		o.name AS "office.name",
+		a.start_time,
+		a.end_time,
+		a.for_money,  
+		a.reason,
+		a.cost_type,
+		a.reason_title,
+		a.address,
+		a.pr_text,
+		a.leader_text,
+		a.leadertwo_text,
+		a.manager_text,
+		a.prthree_text,
+		a.prfour_text,
+		a.prtwo_text,
+		a.prfive_text,
+		a.create_by AS "createBy.id", 
+		a.create_date, 
+		a.update_by AS "updateBy.id", 
+		a.update_date, 
+		a.remarks, 
+		a.del_flag,
+		a.sale_detail_id,
+		a.statu,
+		a.status,
+		a.file_address AS "fileAddress",
+		a.sum_allowance AS "sumAllowance",
+		a.ename
+	</sql>
+
+	<sql id="activityLeave2Joins">
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON o.id=a.office_id
+    </sql>
+    
+    <select id="getSaleDetailIdByProcInsId" parameterType="String" resultType="String">
+        select sale_detail_id from get_sale where proc_ins_id=#{procInsId}
+    </select>
+
+	<select id="getOfficeNameByUserId" resultType="String">
+		SELECT 
+			so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL}
+		and su.id = #{id}
+	</select>
+
+	<select id="getOfficeByUserId" resultType="Office">
+		SELECT 
+			so.id,so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE su.id = #{id}
+<!-- 		and so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL} -->
+	</select>
+	<select id="get" resultType="GetSale">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="GetSale">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} and a.status=1
+		<if test="user != null and user.id != null and user.id != ''">
+		and a.user_id = #{user.id}
+		</if>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	 <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="GetSale"  parameterType="String" >
+    SELECT 
+		<include refid="activityLeave2Columns"/>
+	FROM get_sale a
+		left JOIN sys_user u ON u.id = a.create_by 
+  		left JOIN sys_office o ON o.id = u.office_id 
+   		left JOIN sys_area sa ON sa.id = o.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+
+	<select id="downList" resultType="com.thinkgem.jeesite.sale.entity.DownloadGetSale" parameterType="GetSale" >
+		SELECT
+			u.`name` AS userName,
+			sa.`name` AS areaName,
+			o.`name` AS officeName,
+			a.reason ,
+			a.for_money AS forMoney,
+			a.create_date AS createTime
+		FROM get_sale AS a
+			LEFT JOIN sys_user AS u ON u.id = a.user_id
+        	LEFT JOIN sys_office AS o ON o.id = u.office_id
+			LEFT JOIN sys_area AS sa ON sa.id = o.area_id
+		ORDER BY a.create_date DESC
+	</select>
+
+	<select id="findAllList" resultType="GetSale">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO get_sale(
+			id, 
+			user_id, 
+			office_id, 
+			start_time,
+			end_time,
+			for_money,
+			reason,
+			cost_type,
+			reason_title, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag,
+			sale_detail_id,
+			statu,
+			status,
+			file_address,
+			sum_allowance,
+			ename
+		) VALUES (
+			#{id}, 
+			#{user.id}, 
+			#{office.id}, 
+			#{startTime},
+			#{endTime},
+			#{forMoney},
+			#{reason}, 
+			#{costType},
+			#{reasonTitle},
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag},
+			#{saleDetailId},
+			"审核中",
+			#{status},
+			#{fileAddress},
+			#{sumAllowance},
+			#{ename}
+		)
+	</insert>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	
+	<!-- 修改报销表的报销状态信息（"审核中，驳回，销毁"）3月29号添加的方法，之前该信息均为审核中 -->
+	<update id="updateStatu">
+		UPDATE get_sale SET 
+			statu= #{statu}
+		WHERE id = #{id}
+	</update>
+	
+	
+	
+	
+	<update id="updateForm">
+		UPDATE get_sale SET 
+			user_id = #{user.id}, 
+			office_id = #{office.id},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			for_money = #{forMoney},
+			reason = #{reason}, 
+			cost_type = #{costType},
+			reason_title=#{reasonTitle},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			sale_detail_id=#{saleDetailId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="update">
+		UPDATE get_sale SET 
+			user_id = #{user.id}, 
+			office_id = #{office.id},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			for_money = #{forMoney},
+			reason = #{reason},
+			cost_type = #{costType},
+			reason_title=#{reasonTitle}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			status = #{status},
+			pr_text = #{prText},   
+			leader_text = #{leaderText},
+			leadertwo_text = #{leadertwoText},
+			manager_text = #{managerText},
+			prtwo_text = #{prtwoText},
+			reason_title = #{reasonTitle},
+			sale_detail_id=#{saleDetailId},
+			ename = #{ename}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updatePrText">
+		UPDATE get_sale SET 
+			pr_text = #{prText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeaderText">
+		UPDATE get_sale SET 
+			leader_text = #{leaderText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- add -->
+	<update id="updateLeadertwoText">
+		UPDATE get_sale SET 
+			leadertwo_text = #{leadertwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateManagerText">
+		UPDATE get_sale SET 
+			manager_text = #{managerText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 财务意见 -->
+	<update id="updateprthreeText">
+		UPDATE get_sale SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 财务主管意见 -->
+	<update id="updateprfourText">
+		UPDATE get_sale SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- add -->
+	<update id="updateprtwoText">
+		UPDATE get_sale SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 总经理意见 -->
+	<update id="updateprfiveText">
+		UPDATE get_sale SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="delete">
+		UPDATE get_sale SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	 
+	<select id="getByProcInsId" resultType="GetSale">
+		SELECT 
+			<include refid="activityLeave2Columns"/>
+		FROM get_sale a
+		<include refid="activityLeave2Joins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+	<select id="getIdByProcInsId">
+		SELECT 	id
+		FROM get_sale
+	</select>
+	<!-- 查询最后一条数据存放的日期和第几条 -->
+	<select id="selectCount" resultType="getSaleCount">
+		SELECT time,count
+		FROM get_sale_count
+	</select>
+	<!-- 修改最后一条数据存放的日期和属于第几条 -->
+	<update id="updateCount" parameterType="getSaleCount">
+		UPDATE get_sale_count
+		SET time=#{time},count=#{count}
+	</update>
+	<!-- 用户撤回数据后，删除数据，并且待办任务中过滤掉所有的待办任务 -->
+	<select id="selectProcInsId" resultType="String">
+		select proc_ins_id
+		from get_sale
+		where del_flag='1' or status='0'
+	</select>
+	<!-- 上传文件地址 -->
+	<update id="upload" parameterType="GetSale">
+		UPDATE get_sale
+		SET address = #{address}
+		WHERE id=#{id}
+	</update>
+	<update id="withdraw" parameterType="String">
+		UPDATE get_sale
+		SET status = "0"
+		WHERE id=#{id}
+	</update>
+	<insert id="insertRollBack" parameterType="String">
+		INSERT INTO get_sale_rollback(
+			task_id,
+			process
+		)VALUES(
+			#{taskId},
+			#{process}
+		)
+	</insert>
+	<select id="selectRollBack" resultType="String">
+		SELECT task_id
+		FROM get_sale_rollback
+	</select>
+	<!-- 查询某个人的专项费用 -->
+	<select id="selectSpecial" resultType="Special">
+		SELECT id,
+			reason,
+			money
+		FROM tb_special
+		WHERE user_id=#{id}
+		ORDER BY update_date DESC
+	</select>
+	
+	<select id="selectBusiness" resultType="Business">
+		SELECT id,
+			reason,
+			money
+		FROM tb_business
+		WHERE user_id=#{id}
+		ORDER BY update_date DESC
+	</select>
+	<select id="selectTaskKey" resultType="String">
+	SELECT TASK_DEF_KEY_
+	FROM act_ru_task
+	WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	
+	<update id="updateNum" parameterType="String">
+		update expense_detail set num=null where sale_detail_id=#{deId}
+	</update>
+</mapper>

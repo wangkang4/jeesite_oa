@@ -1,0 +1,82 @@
+@charset "utf-8";
+
+.ok {
+	color: green;
+	font: normal normal 12px/28px '微软雅黑';
+	padding: 0px 5px;
+}
+
+.err {
+	color: red;
+	font: normal normal 12px/28px '微软雅黑';
+	padding: 0px 5px;
+}
+
+.mask {
+	position: absolute;
+	top: 0px;
+	filter: alpha(opacity = 60);
+	background-color: #777;
+	z-index: 1002;
+	left: 0px;
+	opacity: 0.5;
+	-moz-opacity: 0.5;
+}
+
+.main {
+	width: 98%;
+	margin: 10px auto;
+	background: white;
+	border:1px solid #eee;
+}
+.left-td-roles{
+		text-align: right;
+	padding-right: 2%;
+	background: #eee;
+}
+.main h3 {
+	width: 98%;
+	text-align: center;
+	font-size: 28px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.bg-color {
+	background: white;
+}
+
+.tr1 {
+	height: 40px;
+}
+
+.left-td {
+	width: 25%;
+	text-align: right;
+	padding-right: 2%;
+	background: #eee;
+}
+
+.left-td label {
+	margin-left: 30px  !important;
+}
+
+.right-td {
+	background: white;
+	padding-left: 2% !important;
+}
+
+.bottom-tddd {
+	text-align: center  !important;
+}
+
+#contentTable thead tr th{
+   text-align:center;
+}
+
+#contentTable tbody tr th{
+   text-align:center;
+}
+#contentTable tbody tr td{
+   text-align:center;
+}

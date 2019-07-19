@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.induction.dao.InductionDao">
+	<insert id="insert" parameterType="induction">
+		INSERT INTO tb_induction(
+			id, 
+			title,
+			apply_address,
+			apply_office,
+			interview_date,
+			interview_address,
+			employed_name,
+			positive_money,
+			trial_money,
+			employed_office,
+			employed_job,
+			job_level,
+			work_date,
+			phone,
+			positive_date,
+			contract_signed_date,
+			contract_start_date,
+			contract_end_date,
+			file_one_address,
+			file_two_address,
+			statu,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		)values(
+			#{id}, 
+			#{title},
+			#{applyAddress.id},
+			#{applyOffice.id},
+			#{interviewDate},
+			#{interviewAddress},
+			#{employedName},
+			#{positiveMoney},
+			#{trialMoney},
+			#{employedOffice.id},
+			#{employedJob},
+			#{jobLevel},
+			#{workDate},
+			#{phone},
+			#{positiveDate},
+			#{contractSignedDate},
+			#{contractStartDate},
+			#{contractEndDate},
+			#{fileOneAddress},
+			#{fileTwoAddress},
+			'审核中',
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0'
+		)
+	</insert>
+	<sql id="InductionColumns">
+		ti.id,
+		ti.proc_ins_id,
+		ti.title,
+		ti.apply_address,
+		sa.name AS 'applyAddress.name',
+		sa.id AS 'applyAddress.id',
+		ti.apply_office,
+		ao.name AS 'applyOffice.name',
+		ao.id AS 'applyOffice.id',
+		ti.interview_date,
+		ti.interview_address,
+		ti.employed_name,
+		ti.positive_money,
+		ti.trial_money,
+		ti.employed_office,
+		so.name AS 'employedOffice.name',
+		so.id AS 'employedOffice.id',
+		ti.employed_job,
+		ti.job_level,
+		ti.work_date,
+		ti.phone,
+		ti.positive_date,
+		ti.contract_signed_date,
+		ti.contract_start_date,
+		ti.contract_end_date,
+		ti.file_one_address,
+		ti.file_two_address,
+		ti.statu,
+		ti.prone_text,
+		ti.prtwo_text,
+		ti.prthree_text,
+		ti.prfour_text,
+		ti.prfive_text,
+		ti.prsix_text,
+		ti.create_by,
+		su.name AS 'createBy.name',
+		ti.create_date,
+		ti.update_by,
+		ti.update_date,
+		ti.del_flag
+	</sql>
+	<sql id="InductionJoins">
+		JOIN sys_user su ON su.id=ti.create_by
+		JOIN sys_office so ON so.id=ti.employed_office
+		JOIN sys_area sa ON sa.id = ti.apply_address
+		JOIN sys_office ao ON ao.id=ti.apply_office
+    </sql>
+   <select id="get" resultType="induction">
+   		SELECT
+   			<include refid="InductionColumns"/>
+   		FROM tb_induction ti
+   		<include refid="InductionJoins"/>
+   		WHERE ti.id = #{id}
+   </select>
+	<select id="findList" resultType="induction" >
+    SELECT 
+		<include refid="InductionColumns"/>
+	FROM tb_induction ti
+	<include refid="InductionJoins"/>
+	WHERE ti.del_flag = "0" 
+	<if test="createBy != null and createBy.id != null and createBy.id != ''">
+		and ti.create_by = #{createBy.id}
+	</if>
+	order by ti.update_date DESC
+   </select>
+   
+   <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="induction"  parameterType="String" >
+    SELECT 
+		<include refid="InductionColumns"/>
+	FROM tb_induction ti
+		left JOIN sys_user su ON su.id = ti.create_by 
+		left JOIN sys_office ao ON ao.id=ti.apply_office
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+
+	<!--财务人员查看员工录用列表 -->
+	<select id="findList3" resultType="induction"  parameterType="String" >
+	SELECT
+		<include refid="InductionColumns"/>
+		FROM tb_induction ti
+		left JOIN sys_user su ON su.id = ti.create_by
+		left JOIN sys_office ao ON ao.id=ti.apply_office
+		left JOIN sys_office so ON so.id = su.office_id
+		left JOIN sys_area sa ON sa.id = so.area_id
+	</select>
+   
+   <select id="selectAreaNameByOfficeId" parameterType="String" resultType="String">
+   	SELECT sa.name
+   	FROM sys_area sa
+   	LEFT JOIN sys_office so ON so.area_id = sa.id
+   	WHERE so.id = #{officeId}
+   </select>
+   <update id="update">
+   	UPDATE tb_induction SET 
+			id=#{id},
+			title=#{title},
+			apply_address=#{applyAddress},
+			apply_office=#{applyOffice},
+			interview_date=#{interviewDate},
+			interview_address=#{interviewAddress},
+			employed_name=#{employedName},
+			positive_money=#{positiveMoney},
+			trial_money=#{trialMoney},
+			employed_office=#{employedOffice},
+			employed_job=#{employedJob},
+			job_level=#{jobLevel},
+			work_date=#{workDate},
+			phone=#{phone},
+			positive_date=#{positiveDate},
+			contract_signed_date=#{contractSignedDate},
+			contract_start_date=#{contractStartDate},
+			contract_end_date=#{contractEndDate},
+			file_one_address=#{fileOneAddress},
+			file_two_address=#{fileTwoAddress},
+			update_by=#{updateBy.id},
+			update_date=#{updateDate}
+			
+		WHERE id = #{id}
+   </update>
+   <select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+   <update id="updateProneText">
+		UPDATE tb_induction SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_induction SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_induction SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_induction SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfiveText">
+		UPDATE tb_induction SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrsixText">
+		UPDATE tb_induction SET 
+			prsix_text = #{prsixText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_induction SET 
+			statu = #{statu},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<select id="getByProcInsId" resultType="Induction">
+		SELECT 
+			<include refid="InductionColumns"/>
+		FROM tb_induction ti
+   		<include refid="InductionJoins"/>
+		WHERE ti.proc_ins_id = #{procInsId}
+	</select>
+</mapper>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oaproject.dao.PmProjectMainDao">
+    
+	<sql id="pmProjectMainColumns">
+		a.id AS "id",
+		a.project_name AS "projectName",
+		a.project_id AS "projectId",
+		a.project_type AS "projectType",
+		a.project_industry AS "projectIndustry",
+		a.project_state AS "projectState",
+		a.project_stage AS "projectStage",
+		a.project_money AS "projectMoney",
+		a.project_address AS "projectAddress",
+		a.project_summary AS "projectSummary",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.examine AS "examine",
+		a.reject AS "reject",
+		a.project_customer AS "projectCustomer",
+		b.name AS "projectAddress.name",
+		c.name AS "name"
+	</sql>
+	
+	<sql id="pmProjectMainJoins">
+		LEFT JOIN sys_office b ON a.project_address = b.id
+		LEFT JOIN pm_customer_ztree c ON a.project_customer = c.id
+	</sql>
+    
+	<select id="get" resultType="PmProjectMain">
+		SELECT 
+			<include refid="pmProjectMainColumns"/>
+		FROM pm_project_main a
+		<include refid="pmProjectMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PmProjectMain">
+		SELECT 
+			<include refid="pmProjectMainColumns"/>
+		FROM pm_project_main a
+		<include refid="pmProjectMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="projectName != null and projectName != ''">
+			AND a.project_name like "%"#{projectName}"%"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PmProjectMain">
+		SELECT 
+			<include refid="pmProjectMainColumns"/>
+		FROM pm_project_main a
+		<include refid="pmProjectMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findPmProjectMainList" resultType="PmProjectMain">
+		SELECT 
+			<include refid="pmProjectMainColumns"/>
+		FROM pm_project_main a
+		<include refid="pmProjectMainJoins"/>
+		<where>
+			a.del_flag = '0'
+		</where>
+	</select>
+	
+	<select id="getProjectMain" resultType="PmProjectMain">
+		SELECT 
+			<include refid="pmProjectMainColumns"/>
+		FROM pm_project_main a
+		<include refid="pmProjectMainJoins"/>
+		<where>
+			a.del_flag = '0' and a.id = #{projectId}
+		</where>
+	</select>
+	
+	<select id="getProjectMainTeam" resultType="PmProjectMain">
+		SELECT
+			a.user_id As userId,
+			a.role_name As roleName,
+			b. NAME As useraName
+		FROM
+			pm_project_team a,
+			sys_user b
+		WHERE
+			a.user_id = b.id
+		AND a.project_id = #{id}
+		AND a.del_flag = '0'
+	</select>
+	
+	<select id="getProjectRelationList" resultType="PmProjectMain">
+		SELECT
+			b.project_name As projectName,
+			b.project_id As projectId,
+			a.other_project_id As otherProjectId
+		FROM
+			pm_project_project_relation a,
+			pm_project_main b
+		WHERE
+			a.other_project_id = b.id
+		AND a.project_id = #{projectId}
+		AND a.del_flag = '0'
+	</select>
+	
+	<select id="getProjectOpponentList" resultType="PmProjectMain">
+		SELECT
+			b.opponet_content As opponetContent,
+			b.opponet_name As opponetName
+		FROM
+			pm_project_opponent_relation a,
+			pm_opponent_information b
+		WHERE
+			a.opponent_id = b.id
+		AND a.project_id = #{projectId}
+		AND a.del_flag = '0'
+	</select>
+	
+	<select id="getProjectCustomerList" resultType="PmProjectMain">
+		SELECT
+			b.id As id,
+			b.customer_name As customerName,
+			b.company As company,
+			b.phone As phone,
+			b.position As position
+		FROM
+			pm_project_customer_relation a,
+			pm_customer_information b
+		WHERE
+			a.customer_id = b.id
+		AND a.del_flag = '0'
+		AND project_id = #{projectId}
+	</select>
+		
+	<select id="getProjectCooperationList" resultType="PmProjectMain">
+		SELECT
+			b.cooperation,
+			b.contacts,
+			b.iphone As phone,
+			b.position
+		FROM
+			pm_project_cooperation_relation a,
+			pm_cooperation_information b
+		WHERE
+			a.cooperation_id = b.id
+		AND a.del_flag = '0'
+		AND a.project_id = #{projectId}
+	</select>	
+	
+	<insert id="insert">
+		INSERT INTO pm_project_main(
+			id,
+			project_name,
+			project_id,
+			project_type,
+			project_industry,
+			project_state,
+			project_stage,
+			project_money,
+			project_address,
+			project_summary,
+			examine,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			project_customer,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectName},
+			#{projectId},
+			#{projectType},
+			#{projectIndustry},
+			#{projectState},
+			#{projectStage},
+			#{projectMoney},
+			#{projectAddress},
+			#{projectSummary},
+			#{examine}
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{projectCustomer},
+			#{delFlag}
+		)
+	</insert>
+	
+	<insert id="savePeople">
+		INSERT INTO pm_project_team(
+			id,
+			project_id,
+			user_id,
+			role_name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES
+		<foreach collection="list" item="item" index="index" separator=","> 
+        (
+        	#{item.id},
+        	#{item.projectId},
+        	#{item.userId},
+        	#{item.roleName}, 
+        	#{item.createBy.id},
+        	now(),
+        	#{item.updateBy.id},
+        	now(), 
+        	'0'
+        ) 
+    	</foreach> 
+	</insert>
+	
+	<update id="delpeople">
+		UPDATE pm_project_team SET del_flag = '1' where project_id = #{projectId}
+	</update>
+	
+	<update id="update">
+		UPDATE pm_project_main SET 	
+			project_name = #{projectName},
+			project_id = #{projectId},
+			project_type = #{projectType},
+			project_industry = #{projectIndustry},
+			project_state = #{projectState},
+			project_stage = #{projectStage},
+			project_money = #{projectMoney},
+			project_address = #{projectAddress},
+			project_summary = #{projectSummary},
+			examine = #{examine},
+			reject = #{reject},
+			project_customer = #{projectCustomer},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE pm_project_main SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getNum" resultType="int">
+		SELECT COUNT(*) FROM pm_project_main WHERE DATE_FORMAT(create_date,'%Y') like #{year};
+	</select>
+	
+	<select id="getCustomerList" resultType="PmProjectMain">
+		SELECT
+			a.project_id as projectId,
+			b.customer_name as customerName
+		FROM
+			pm_project_customer_relation a
+		LEFT JOIN pm_customer_information b ON a.customer_id = b.id
+		WHERE a.del_flag = '0'
+	</select>
+	
+	<insert id="saveDocument">
+		INSERT INTO pm_appendix(
+			id,
+			project_id,
+			project_stage,
+			document_name,
+			document_address,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES
+        (
+        	#{id},
+        	#{projectId},
+        	#{projectStage},
+        	#{documentName},
+        	#{documentAddress},
+        	#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+        	'0'
+        ) 
+	</insert>
+	
+	<select id="getDocumentList" resultType="PmProjectMain">
+		SELECT
+			id,
+			document_name AS documentName,
+			document_address AS documentAddress
+		FROM
+			pm_appendix
+		WHERE
+			del_flag = '0'
+		AND project_id = #{id}
+	</select>
+	
+	
+	<select id="getDocument" resultType="PmProjectMain">
+		SELECT
+			id,
+			document_name AS documentName,
+			document_address AS documentAddress
+		FROM
+			pm_appendix
+		WHERE
+			del_flag = '0'
+		AND id = #{id}
+	</select>
+	
+	<update id="delProjectDocument">
+		UPDATE pm_appendix SET del_flag = '1' WHERE id = #{id}
+	</update>
+	
+	<update id="saveExamine">
+		UPDATE pm_project_main SET reject =#{reject} ,examine =#{examine} WHERE del_flag = '0' AND id =#{id}
+	</update>
+</mapper>

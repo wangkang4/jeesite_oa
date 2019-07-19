@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.WeChat.dao.WeChatTokenDao">
+	<select id="getWeChatAccessToken" resultType="com.thinkgem.jeesite.modules.WeChat.entity.AccessToken">
+		SELECT 
+			type as type,token as accesstoken,create_time as  createTime
+		FROM oa_token 
+		WHERE type = #{type} 
+		ORDER BY create_time DESC 
+		LIMIT 0,1
+	</select>
+	
+	<insert id="saveWeChatAccessToken">
+		INSERT INTO oa_token (
+			id,
+			type,
+			token,
+			create_time
+		) VALUES (
+			#{id},
+			#{type},
+			#{accesstoken},
+			#{createTime}) 
+	</insert>
+	
+	<insert id="saveCreateTime">
+		INSERT INTO oa_checkin_time (
+			id,
+			create_time
+		) VALUES (
+			#{id},
+			#{createTime}) 
+	</insert>
+	
+	<select id="getCheckinTime" resultType="com.thinkgem.jeesite.modules.WeChat.entity.AccessToken">
+		SELECT 
+			create_time as  createTime
+		FROM oa_checkin_time
+		ORDER BY create_time DESC 
+		LIMIT 0,1
+	</select>
+</mapper>

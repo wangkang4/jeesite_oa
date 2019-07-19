@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.oapms.dao.PmsContractDao">
+
+   <select id="selectFileNameById" resultType="String">
+      select document_name from pms_project_document where 
+      document_id=#{attachmentAddress}
+   </select>
+
+	<select id="selectById" resultType="PmsContract">
+		SELECT
+		a.id,
+		a.title,
+		a.customer_id AS 'customerId',
+		a.project_id AS 'projectId',
+		a.amount,
+		a.total_amount
+		AS 'totalAmount',
+		a.start_time AS 'startTime',
+		a.end_time AS 'endTime',
+		a.service_period AS 'servicePeriod',
+		a.contract_terms AS 'contractTerms',
+		a.attachment_name AS 'attachmentName',
+		a.attachment_address AS 'attachmentAddress',
+		a.create_by AS
+		"createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		b.customer_name as 'customer.customerName',
+		c.project_name as
+		'pmsProject.projectName'
+		from pms_contract a,pms_customer b,pms_project c where
+		a.customer_id=b.customer_id and a.project_id=c.project_id
+		and
+		a.id=#{id}
+	</select>
+
+	<sql id="AllColumns">
+		a.id,
+		a.title,
+		u.id AS "user.id",
+		u.name AS "user.name",
+		o.id AS "office.id",
+		o.name AS "office.name",
+		a.customer_id,
+		a.project_id,
+		a.amount,
+		a.total_amount,
+		a.start_time,
+		a.end_time,
+		a.service_period,
+		a.contract_terms,
+		a.attachment_name,
+		a.attachment_address,
+		a.create_by AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag
+	</sql>
+
+	<sql id="activityLeave2Joins">
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON
+		o.id=a.office_id
+	</sql>
+
+	<select id="get" resultType="PmsContract">
+		SELECT
+		a.id,
+		a.title,
+		a.customer_id AS 'customerId',
+		a.project_id AS 'projectId',
+		a.amount,
+		a.total_amount
+		AS 'totalAmount',
+		a.start_time AS 'startTime',
+		a.end_time AS 'endTime',
+		a.service_period AS 'servicePeriod',
+		a.contract_terms AS 'contractTerms',
+		a.attachment_name AS 'attachmentName',
+		a.attachment_address AS 'attachmentAddress',
+		a.create_by AS
+		"createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		b.customer_name as 'customer.customerName',
+		c.project_name as
+		'pmsProject.projectName'
+		from pms_contract a,pms_customer b,pms_project c where
+		a.customer_id=b.customer_id and a.project_id=c.project_id
+		and
+		a.id=#{id}
+	</select>
+
+
+    <!-- 查询所有客户信息  以及根据相关条件来查询信息 -->
+	<select id="findList" resultType="PmsContract">
+		SELECT
+		a.id,
+		a.title,
+		a.customer_id AS 'customerId',
+		a.project_id AS 'projectId',
+		a.amount,
+		a.total_amount
+		AS 'totalAmount',
+		a.start_time AS 'startTime',
+		a.end_time AS 'endTime',
+		a.service_period AS 'servicePeriod',
+		a.contract_terms AS 'contractTerms',
+		a.attachment_name AS 'attachmentName',
+		a.attachment_address AS 'attachmentAddress',
+		a.create_by AS
+		"createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		b.customer_name as 'customer.customerName',
+		c.project_name as
+		'pmsProject.projectName'
+		from pms_contract a,pms_customer b,pms_project c where
+		a.customer_id=b.customer_id and a.project_id=c.project_id
+		and
+		a.del_flag = '0'
+		<if test="startTime!='' and startTime != null">
+			AND a.start_time &gt;= #{startTime}
+	    </if>
+	    <if test="endTime!='' and endTime != null">
+			AND a.end_time &lt;= #{endTime}
+	    </if>
+	    <if test="projectId!='' and projectId != null">
+			AND a.project_id =#{projectId}
+	    </if>
+	    <if test="customerId!='' and customerId != null">
+			AND a.customer_id =#{customerId}
+	    </if>
+	</select>
+
+	<select id="findAllList" resultType="PmsContract">
+		SELECT
+		<include refid="AllColumns" />
+		FROM pms_contract a
+		<include refid="activityLeave2Joins" />
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY a.id DESC
+	</select>
+
+	<insert id="insert">
+		INSERT INTO pms_contract(
+		id,
+		title,
+		customer_id,
+		project_id,
+		amount,
+		total_amount,
+		start_time,
+		end_time,
+		service_period,
+		contract_terms,
+		attachment_name,
+		attachment_address,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		del_flag
+		) VALUES (
+		#{id},
+		#{title},
+		#{customerId},
+		#{projectId},
+		#{amount},
+		#{totalAmount},
+		#{startTime},
+		#{endTime},
+		#{servicePeriod},
+		#{contractTerms},
+		#{attachmentName},
+		#{attachmentAddress},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE pms_contract SET
+		title = #{title},
+		customer_id = #{customerId},
+		project_id = #{projectId},
+		amount = #{amount},
+		total_amount = #{totalAmount},
+		start_time =
+		#{startTime},
+		end_time = #{endTime},
+		service_period = #{servicePeriod},
+		contract_terms = #{contractTerms},
+		attachment_name = #{attachmentName},
+		attachment_address = #{attachmentAddress},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE pms_contract SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+    <!--多表关联删除 -->
+	<!-- <delete id="deletePms"> DELETE a,b,c FROM pms_contract a INNER JOIN 
+		pms_customer b ON a.customer_id=b.customer_id INNER JOIN pms_project c ON 
+		a.project_id=c.project_id WHERE a.id =#{id} </delete> -->
+
+	<update id="deletePms">
+		update pms_contract set
+		del_flag='1'
+		Where id=#{id}
+	</update>
+
+
+
+</mapper>

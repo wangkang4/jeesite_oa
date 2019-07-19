@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mobile.dailyrecord.dao.TCheckBackDao">
+	
+	<select id="findRecondlist" parameterType="TCheckBack" resultType="TCheckBack">
+		select 
+			DISTINCT t.prof_id AS id,
+			t.types AS types, 
+			t.creater_time AS dayTime,
+			t.prof_id AS profId,
+			a.day_content AS dayContent,
+			a.performance AS performance,
+			a.plan_content AS planContent,
+			a.remark AS dayRemark,
+			b.day_content AS weekContent,
+			b.plan_content AS weekplanContent,
+			b.remark AS weekRemark
+		from t_check_backlog t
+			left join t_daily a on a.id = t.prof_id
+			left join t_weekly b on b.id = t.prof_id
+		where t.creater_id = #{user.id} and
+			(a.del_flag = 0 or b.del_flag = 0)
+		ORDER BY t.creater_time DESC 
+	</select>
+
+	<select id="getUserone" parameterType="String" resultType="User">
+		select id,name,photo from sys_user
+		where id=#{userid}
+	</select>
+
+	<select id="findgetsendlist" parameterType="TCheckBack" resultType="TCheckBack">
+		select 
+			t.prof_id AS id,
+			t.types AS types, 
+			t.creater_time AS dayTime,
+			t.creater_id AS "user.id",
+			t.prof_id AS profId,
+			a.day_content AS dayContent,
+			a.performance AS performance,
+			a.plan_content AS planContent,
+			a.remark AS dayRemark,
+			b.day_content AS weekContent,
+			b.plan_content AS weekplanContent,
+			b.remark AS weekRemark
+		from t_check_backlog t
+			left join t_daily a on a.id = t.prof_id
+			left join t_weekly b on b.id = t.prof_id
+		where t.user_id = #{user.id} and 
+			(a.del_flag = 0 or b.del_flag = 0)
+		ORDER BY t.creater_time DESC
+	</select>
+
+
+</mapper>

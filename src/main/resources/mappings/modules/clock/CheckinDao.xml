@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.clock.dao.CheckinDao1">
+    
+    
+	<sql id="checkinColumns">
+		c.userid AS "user.id",
+		c.groupname,
+		c.checkin_type checkinType,
+	    c.exception_type exceptionType,
+	    c.checkin_time checkinTime,
+	 	c.location_title locationTitle,
+	 	c.location_detail locationDetail,
+	 	c.wifiname,
+	 	c.notes,
+	 	c.wifimac,
+	 	c.mediaids,
+	 	u.name AS "user.name",
+	 	u.name AS "pname"
+	</sql>
+	
+	<!-- 查看所有打卡信息 -->
+	<select id="findList" resultType="Checkin" parameterType="Checkin">
+		select <include refid="checkinColumns"/>
+		from checkin_wx c
+		join sys_user u on c.userid=u.wechetid
+		<where>
+			<if test="startTime != null and startTime != ''">
+				and checkin_time &gt; #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and checkin_time &lt; #{endTime}
+			</if>
+			<if test="user!=null and user.id != null and user.id != ''">
+				and u.id = #{user.id }
+			</if>
+		</where>
+		order by checkin_time desc
+	</select>
+	
+
+</mapper>

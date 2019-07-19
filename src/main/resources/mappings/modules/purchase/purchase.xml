@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.purchase.dao.PurchaseDao">
+	<!-- 插入数据库操作 -->
+	<insert id="insert">
+		INSERT INTO tb_purchase(
+			id,
+			user_id,
+			office_id,
+			p_name,
+			money,
+			apply_date,
+			purchase_date,
+			apply_address,
+			report,
+			title,
+			prone_text,
+			prtwo_text,
+			prthree_text,
+			prfour_text,
+			prfive_text,
+			statu,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+			<!-- proc_ins_id -->
+		)VALUES(
+			#{id},
+			#{user.id},
+			#{office.id},
+			#{pName},
+			#{money},
+			#{applyDate},
+			#{purchaseDate},
+			#{applyAddress},
+			#{report},
+			#{title},
+			#{proneText},
+			#{prtwoText},
+			#{prthreeText},
+			#{prfourText},
+			#{prfiveText},
+			#{statu},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			'0'
+			<!-- #{procInsId} -->
+		)
+	</insert>
+	
+	<sql id="purchaseColumns">
+		p.id,
+		p.user_id,
+		p.office_id,
+		p.p_name AS 'pName',
+		p.money,
+		p.apply_date AS 'applyDate',
+		p.purchase_date AS 'purchaseDate',
+		p.apply_address AS 'applyAddress',
+		p.report,
+		p.title,
+		p.prone_text AS 'proneText',
+		p.prtwo_text AS 'prtwoText',
+		p.prthree_text AS 'prthreeText',
+		p.prfour_text AS 'prfourText',
+		p.prfive_text AS 'prfiveText',
+		p.statu,
+		p.create_by AS 'createBy.id',
+		sa.name AS 'createBy.Office.Area.name',
+		p.create_date AS 'createDate',
+		p.update_by AS 'updateBy.id',
+		p.update_date AS 'updateDate',	
+		p.del_flag AS 'delFlag',
+		p.proc_ins_id,
+		su.id AS 'user.id',
+		so.id AS 'office.id',
+		su.name AS 'user.name',
+		so.name AS 'office.name'
+	</sql>
+	<sql id="purchaseJoins">
+		JOIN sys_user su ON su.id=p.user_id
+		JOIN sys_office so ON so.id=p.office_id
+		JOIN sys_area sa ON so.area_id=sa.id
+	</sql>
+	<!-- 获取数据操作 -->
+	 <select id="get" resultType="Purchase">
+		SELECT 
+			<include refid="purchaseColumns"/>
+		FROM tb_purchase p
+			<include refid="purchaseJoins"/>
+   		WHERE p.id=#{id}
+   </select>
+	
+	<!-- 查询列表 -->
+	<select id="findList" resultType="Purchase">
+			SELECT 
+		<include refid="purchaseColumns"/>
+			FROM tb_purchase p
+		<include refid="purchaseJoins"/>
+			WHERE p.del_flag = "0" 
+		<if test="user != null and user.id != null and user.id != ''">
+			and su.id = #{user.id}
+		</if>
+			ORDER BY p.create_date desc
+	</select>
+	
+	<!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Purchase"  parameterType="String" >
+    SELECT 
+		<include refid="purchaseColumns"/>
+	FROM tb_purchase p
+		left JOIN sys_user su ON su.id = p.create_by 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+
+	<!--财务人员查看员工申请列表 -->
+	<select id="findList4" resultType="Purchase"  parameterType="String" >
+		SELECT
+		<include refid="purchaseColumns"/>
+		FROM tb_purchase p
+		left JOIN sys_user su ON su.id = p.create_by
+		left JOIN sys_office so ON so.id = su.office_id
+		left JOIN sys_area sa ON sa.id = so.area_id
+	</select>
+	<!-- 第一个审核人的意见插入 -->
+	<update id="updateProneText">
+		UPDATE tb_purchase SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 第二个审核人的意见插入 -->
+	<update id="updatePrtwoText">
+		UPDATE tb_purchase SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 第三个审核人的意见插入 -->
+	<update id="updatePrthreeText">
+		UPDATE tb_purchase SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 第四个审核人的意见插入 -->
+	<update id="updatePrfourText">
+		UPDATE tb_purchase SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 第五个审核人的意见插入 -->
+	<update id="updatePrfiveText">
+		UPDATE tb_purchase SET 
+			prfive_text = #{prfiveText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<!-- 状态修改 -->
+	<update id="updateStatu">
+		UPDATE tb_purchase SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<!-- 修改操作 -->
+	<update id="update">
+		UPDATE tb_purchase SET
+			user_id=#{user.id},
+			office_id=#{office.id},
+			p_name=#{pName},
+			money=#{money},
+			apply_date=#{applyDate},
+			purchase_date=#{purchaseDate},
+			apply_address=#{applyAddress},
+			report=#{report},
+			title=#{title},
+			prone_text=#{proneText},
+			prtwo_text=#{prtwoText},
+			prthree_text=#{prthreeText},
+			prfour_text=#{prfourText},
+			prfive_text=#{prfiveText},
+			statu=#{statu},
+			update_by=#{updateBy.id}, 
+			update_date=#{updateDate}, 
+			remark=#{remarks}, 
+			del_flag=#{delFlag}
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 流转信息查询 -->
+	<select id="getByProcInsId" resultType="Purchase">
+		SELECT 
+			<include refid="purchaseColumns"/>
+		FROM tb_purchase p
+		<include refid="purchaseJoins"/>
+		WHERE p.proc_ins_id = #{procInsId}
+	</select>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<!-- 撤销申请操作 -->
+  	<update id="delete">
+		UPDATE tb_purchase SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deletePurchase">
+   		DELETE FROM
+   		tb_purchase 
+   		WHERE proc_ins_id=#{procInsId} 
+   </delete>
+   <delete id="deleteTask">
+   		DELETE FROM
+   		act_ru_task 
+   		WHERE PROC_INST_ID_=#{procInstId} 
+   </delete>
+</mapper>

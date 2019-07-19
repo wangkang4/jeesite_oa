@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.signet.dao.SignetDao">
+	<insert id="insert" parameterType="signet">
+		INSERT INTO tb_signet(
+			id, 
+			title,
+			user_id,
+			apply_date,
+			signet_name,
+			notes,
+			statu, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		)values(
+			#{id}, 
+			#{title},
+			#{user.id},
+			#{applyDate},
+			#{signetName},
+			#{notes},
+			'审核中',
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			'0'
+		)
+	</insert>
+	<sql id="SignetColumns">
+		ts.id,
+		ts.proc_ins_id,
+		ts.title,
+		ts.user_id AS 'user.id',
+		su.name AS 'user.name',
+		ts.apply_date AS 'applyDate',
+		ts.signet_name AS 'signetName',
+		ts.notes,
+		ts.statu, 
+		ts.prone_text AS 'proneText',
+		ts.prtwo_text AS 'prtwoText',
+		ts.create_by, 
+		ts.create_date, 
+		ts.update_by, 
+		ts.update_date, 
+		ts.remarks
+	</sql>
+	<sql id="SignetJoins">
+		JOIN sys_user su ON su.id=ts.user_id
+    </sql>
+   <select id="findList" resultType="Signet" >
+    SELECT 
+		<include refid="SignetColumns"/>
+	FROM tb_signet ts
+	<include refid="SignetJoins"/>
+	WHERE ts.del_flag = "0" 
+	<if test="user != null and user.id != null and user.id != ''">
+		and su.id = #{user.id}
+	</if>
+	order by ts.update_date DESC
+   </select>
+   
+    <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Signet"  parameterType="String" >
+    SELECT 
+		<include refid="SignetColumns"/>
+	FROM tb_signet ts
+		left JOIN sys_user su ON su.id = ts.create_by 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   <select id="findEmployeesList" resultType="Signet" >
+    SELECT 
+		<include refid="SignetColumns"/>
+	FROM tb_signet ts
+	<include refid="SignetJoins"/>
+	WHERE ts.del_flag = "0" and ts.statu = "审核通过" 
+	<if test="st != null and st != ''">
+		and ts.create_date &gt; #{st}
+	</if>
+	<if test="et != null and et != ''">
+		and ts.create_date &lt; #{et}
+	</if>
+	<if test="createBy != null and createBy.id != null and createBy.id != ''">
+		and ts.create_by = #{createBy.id}
+	</if>
+	order by ts.update_date DESC
+   </select>
+   <select id="get" resultType="Signet">
+   		SELECT
+   			<include refid="SignetColumns"/>
+   		FROM tb_signet ts
+   		<include refid="SignetJoins"/>
+   		WHERE ts.id = #{id}
+   </select>
+  <update id="update">
+		UPDATE tb_signet SET 
+			user_id = #{user.id}, 
+			title = #{title},
+			apply_date = #{applyDate},
+			signet_name = #{signetName},
+			notes = #{notes},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+			
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_signet SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_signet SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_signet SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<select id="getByProcInsId" resultType="Signet">
+		SELECT 
+			<include refid="SignetColumns"/>
+		FROM tb_signet ts
+		<include refid="SignetJoins"/>
+		WHERE ts.proc_ins_id = #{procInsId}
+	</select>
+	<update id="delete">
+		UPDATE tb_signet SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+</mapper>

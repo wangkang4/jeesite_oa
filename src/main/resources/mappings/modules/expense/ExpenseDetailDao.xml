@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.expense.dao.ExpenseDetailDao">
+	
+	<insert id="insertAll" parameterType="java.util.List">
+	insert into expense_detail
+	(
+		
+		detail_date,
+		money,
+		cost_type_id,
+		cost_type,
+		cost_description_id,
+		cost_description,
+		day,
+		origin,
+		num,
+		destination,
+		amount_money,
+		allow_money,
+		project_name,
+		information,
+		expense_id,
+		create_date,
+		sale_detail_id,
+		tb_money_id,
+		tb_money_name,
+		allowance,
+		allowance_money
+	)
+	values 
+	<foreach collection="list" item="item" index="index" 
+	separator=",">
+	(
+	#{item.detailDate},
+	#{item.money},
+	#{item.costTypeId},
+	#{item.costType},
+	#{item.costDescriptionId},
+	#{item.costDescription},
+	#{item.day},
+	#{item.origin},
+	#{item.num},
+	#{item.destination},
+	#{item.amountMoney},
+	#{item.amountMoney},
+	#{item.projectName},
+	#{item.information},
+	#{item.expenseId},
+	#{item.createDate},
+	#{item.saleDetailId},
+	#{item.tbMoneyId},
+	#{item.tbMoneyName},
+	#{item.allowance},
+	#{item.allowanceMoney}
+	)
+	
+	</foreach>
+	</insert>
+	
+	<select id="findById"  parameterType="java.lang.String" resultType="com.thinkgem.jeesite.modules.expense.entity.ExpenseDetail">
+		select * from expense_detail where sale_detail_id=#{saleDetailId};
+	</select>
+	<update id="updateAllowMoney" parameterType="com.thinkgem.jeesite.modules.expense.entity.ExpenseDetail">
+		update expense_detail set
+			allow_money = #{allowMoney},
+			allowance_money = #{allowanceMoney}
+		where detail_id = #{detailId}
+	</update>
+	
+	<update id="updateById" parameterType="com.thinkgem.jeesite.modules.expense.entity.ExpenseDetail">
+		update expense_detail set 
+			 
+			detail_date = #{detailDate},
+			money = #{money},
+			cost_type = #{costType},
+			cost_type_id=#{costTypeId},
+			cost_description = #{costDescription},
+			cost_description_id=#{costDescriptionId},
+			day = #{day},
+			amount_money=#{amountMoney},
+			allow_money=#{amountMoney},
+			project_name=#{projectName},
+			information=#{information},
+			expense_id=#{expenseId},
+			create_date=#{createDate},
+			sale_detail_id=#{saleDetailId},
+			tb_money_id=#{tbMoneyId},
+			tb_money_name=#{tbMoneyName},
+			allowance=#{allowance},
+			allowance_money = #{allowanceMoney}
+		where detail_id = #{detailId}
+	</update>
+	
+	<delete id="deleteAll" parameterType="java.lang.String">
+	delete from expense_detail where sale_detail_id=#{saleDetailIds}
+	</delete>
+	
+	<select id="selectNum" resultType="Integer" parameterType="String">
+   		SELECT count(num)
+   		FROM expense_detail
+   		WHERE num=#{num} 
+   </select>
+	
+</mapper>

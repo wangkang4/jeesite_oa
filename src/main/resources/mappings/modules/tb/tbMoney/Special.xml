@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tb.tbMoney.dao.SpecialDao">
+
+  
+  <insert id="insert">
+  	INSERT INTO tb_special(
+  		id,
+  		user_id,
+  		office_id,
+  		tb_date,
+  		pay_type,
+  		account,
+  		money,
+  		reason,
+  		notes,
+  		statu,
+  		leader,
+  		create_by, 
+		create_date, 
+		update_by, 
+		update_date, 
+		remarks, 
+		del_flag
+  	) VALUES(
+  		#{id},
+  		#{user.id},
+  		#{office.id},
+  		#{tbDate},
+  		#{payType},
+  		#{account},
+  		#{money},
+  		#{reason},
+  		#{notes},
+  		'审核中',
+  		#{leader},
+  		#{createBy.id},
+  		#{createDate},
+  		#{updateBy.id},
+  		#{updateDate},
+  		#{remarks},
+  		#{delFlag}
+  	)
+  </insert>
+  <sql id="SpecialJoins">
+		JOIN sys_user su ON su.id=tm.user_id
+		JOIN sys_office so ON so.id=tm.office_id
+    </sql>
+    <sql id="SpecialColumns">
+    	tm.id,
+		tm.proc_ins_id AS 'procInsId',
+		su.id AS 'user.id',
+		su.name AS 'user.name',
+		so.id AS 'office.id',
+		so.name AS 'office.name',
+		tm.pay_type AS 'payType',
+		tm.account,
+		tm.tb_date AS 'tbDate',
+		tm.money,
+		tm.reason,
+		tm.address,
+		tm.notes,
+		tm.prone_text AS 'proneText',
+		tm.prtwo_text AS 'prtwoText',
+		tm.prthree_text AS 'prthreeText',
+		tm.create_by AS 'createBy.id',
+		tm.create_date AS 'createDate',
+		tm.update_by AS 'updateBy.id',
+		tm.update_date AS 'updateDate',
+		tm.statu
+    </sql>
+    <select id="get" resultType="Special">
+		SELECT 
+			<include refid="SpecialColumns"/>
+		FROM tb_special tm
+		<include refid="SpecialJoins"/>
+		WHERE tm.id = #{id}
+	</select>
+  <select id="findList" resultType="Special" >
+    SELECT 
+		<include refid="SpecialColumns"/>
+	FROM tb_special tm
+	<include refid="SpecialJoins"/>
+	WHERE tm.del_flag = "0" 
+	<if test="user != null and user.id != null and user.id != ''">
+		and su.id = #{user.id}
+	</if>
+	<if test="leader==1">
+		and tm.leader=#{leader}
+		and tm.statu in("审核通过","已付款")
+	</if>
+   </select>
+   
+    <!--行政人员查看所属区域申请列表 -->
+   <select id="findList2" resultType="Special"  parameterType="String" >
+    SELECT 
+		<include refid="SpecialColumns"/>
+	FROM tb_special tm
+		left JOIN sys_user su ON su.id = tm.user_id 
+  		left JOIN sys_office so ON so.id = su.office_id 
+   		left JOIN sys_area sa ON sa.id = so.area_id 
+	<where> 
+	<choose>
+		<when test="name=='上海' or name=='杭州市' or name=='福州市' " >
+			sa.name = '上海' or '杭州市' or '福州市'
+		</when>
+		<otherwise>
+			sa.name = #{name}
+		</otherwise>
+	</choose>
+	</where>
+   </select>
+   
+   
+   
+   
+   <select id="findEmployeesList" resultType="Business" >
+   	SELECT 
+		<include refid="SpecialColumns"/>
+	FROM tb_special tm
+	<include refid="SpecialJoins"/>
+	WHERE tm.del_flag = "0"  AND tm.statu in("审核通过","已付款")
+   </select>
+   <update id="update">
+		UPDATE tb_special SET 
+			user_id = #{user.id}, 
+			office_id = #{office.id},
+			tb_date = #{tbDate},
+			pay_type = #{payType},
+			account = #{account},
+			money = #{money},
+			reason = #{reason},
+			notes=#{notes}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks},
+			prone_text = #{proneText},   
+			prtwo_text = #{prtwoText}
+		WHERE id = #{id}
+	</update>
+	<update id="updateStatu">
+		UPDATE tb_special SET 
+			statu = #{statu}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProneText">
+		UPDATE tb_special SET 
+			prone_text = #{proneText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrtwoText">
+		UPDATE tb_special SET 
+			prtwo_text = #{prtwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrthreeText">
+		UPDATE tb_special SET 
+			prthree_text = #{prthreeText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="updatePrfourText">
+		UPDATE tb_special SET 
+			prfour_text = #{prfourText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	<update id="uploadSpecial" parameterType="Special">
+		UPDATE tb_special SET
+			 address = #{address}
+		WHERE id = #{id}
+	</update>
+	<select id="selectTaskIdByProcinsId" resultType="String" parameterType="String">
+		SELECT ID_
+		FROM	act_ru_task
+		WHERE PROC_INST_ID_ = #{procInstId}
+	</select>
+	<update id="delete">
+		UPDATE tb_special SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<select id="getByProcInsId" resultType="Special">
+		SELECT 
+			<include refid="SpecialColumns"/>
+		FROM tb_special tm
+		<include refid="SpecialJoins"/>
+		WHERE tm.proc_ins_id = #{procInsId}
+	</select>
+</mapper>

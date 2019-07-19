@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.CostExcel.dao.CostRecondExcelDao">
+	
+	<sql id="costRecondExcelColumns">
+		c.id AS "id",
+		c.client_name AS "clientName",
+		c.project_name AS "projectName",
+		c.project_money AS "projectMoney",
+		c.use_time AS "useTime",
+		c.travel_expense AS "travelExpense",
+		c.meal_money AS "mealMoney",
+		c.cultural_gifts_person AS "culturalgiftsPerson",
+		c.other_money AS "otherMoney",
+		c.cultural_gifts_compeny AS "culturalgiftsCompeny",
+		c.conment AS "conment",
+		c.type As "type",
+		c.creater_by AS "createrBy.id",
+		c.creater_time AS "createrTime",
+		c.haveSee AS "haveSee",
+		u.name AS "exName",
+		u.name AS "createrBy.name"
+	</sql>
+	
+	<sql id="userJoins">
+		left join sys_user u on u.id = c.creater_by
+	</sql>
+	
+	
+	<select id="findList" resultType="CostRecondExcel">
+		select 
+			<include refid="costRecondExcelColumns"/>
+		from oa_excel_cost c
+			<include refid="userJoins" />
+		where 1=1
+		<if test="createrBy != null and createrBy != '' and createrBy.leaderid == 1">
+		    and c.creater_by in (
+		    	select id 
+		   			FROM sys_user usr 
+		    	WHERE usr.office_id = #{createrBy.office.id}
+		    	)
+		</if>
+		<if test="createrBy != null and createrBy != '' and createrBy.leaderid == 0">
+		    and c.creater_by = #{createrBy.id}
+		</if>
+		<if test="userId != null and userId != ''">
+		    and c.creater_by = #{userId}
+		</if>
+		<if test="offieId != null and offieId != ''">
+		    and c.creater_by in (
+		    	select id 
+		   			FROM sys_user usr 
+		    	WHERE usr.office_id = #{offieId}
+		    	)
+		</if>
+		<if test="type != null and type != ''">
+		    and c.type = #{type}
+		</if>
+		<if test="clientName != null and clientName != ''">
+		    and c.client_name = #{clientName}
+		</if>
+		<if test="projectName != null and projectName != ''">
+		    and c.project_name = #{projectName}
+		</if>
+		<if test=" startTime != null and startTime != ''">
+			<![CDATA[ and c.use_time >= #{startTime}  ]]>
+		</if>
+		<if test="endTime != null and endTime != ''">
+		  	<![CDATA[ and c.use_time < #{endTime}  ]]>
+		</if>
+		<if test="conment != null and conment != ''">
+		    and c.conment like CONCAT('%', #{conment}, '%')
+		</if>
+		order by c.use_time desc
+	</select>
+	
+	<insert id="insertList"  parameterType="java.util.List">
+		insert into oa_excel_cost 
+		(
+			id,
+			client_name,
+			project_name,
+			project_money,
+			use_time,
+			travel_expense,
+			meal_money,
+			cultural_gifts_person,
+			other_money,
+			cultural_gifts_compeny,
+			conment,
+			type,
+			creater_by,
+			creater_time
+		)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(
+				#{item.id},
+				#{item.clientName},
+				#{item.projectName},
+				#{item.projectMoney},
+				#{item.useTime},
+				#{item.travelExpense},
+				#{item.mealMoney},
+				#{item.culturalgiftsPerson},
+				#{item.otherMoney},
+				#{item.culturalgiftsCompeny},
+				#{item.conment},
+				#{item.type},
+				#{item.createrBy.id},
+				#{item.createrTime}
+			)
+			</foreach>
+	</insert>
+	
+	<select id="getone" resultType="CostRecondExcel">
+		select 
+			<include refid="costRecondExcelColumns"/>
+		from oa_excel_cost c
+			<include refid="userJoins" />
+		where c.id = #{id}
+	</select>
+	
+	<update id="updateone" parameterType="CostRecondExcel">
+		update oa_excel_cost set
+			client_name = #{clientName},
+			project_name = #{projectName},
+			project_money = #{projectMoney},
+			use_time = #{useTime},
+			travel_expense = #{travelExpense},
+			meal_money = #{mealMoney},
+			cultural_gifts_person = #{culturalgiftsPerson},
+			other_money = #{otherMoney},
+			cultural_gifts_compeny = #{culturalgiftsCompeny},
+			conment = #{conment}
+		where id = #{id}
+	</update>
+	
+	<insert id="insertone">
+		insert into oa_excel_cost 
+		(
+			id,
+			client_name,
+			project_name,
+			project_money,
+			use_time,
+			travel_expense,
+			meal_money,
+			cultural_gifts_person,
+			other_money,
+			cultural_gifts_compeny,
+			conment,
+			type,
+			creater_by,
+			creater_time
+		)
+		value
+		(
+			#{id},
+			#{clientName},
+			#{projectName},
+			#{projectMoney},
+			#{useTime},
+			#{travelExpense},
+			#{mealMoney},
+			#{culturalgiftsPerson},
+			#{otherMoney},
+			#{culturalgiftsCompeny},
+			#{conment},
+			#{type},
+			#{createrBy.id},
+			#{createrTime}
+		)
+	</insert>
+	
+	<delete id="deleteone" >
+		delete from oa_excel_cost
+		where id = #{id}
+	</delete>
+	
+	<select id="getUserName" parameterType="String" resultType="String">
+		select name from sys_user
+		where id= #{userId}
+	</select>
+	
+	<select id="getOffieName" parameterType="String" resultType="String">
+		select name from sys_office
+		where id = #{id}
+	</select>
+	
+	<update id="uodateHaveSee" parameterType="CostRecondExcel">
+		update oa_excel_cost set
+			haveSee = #{haveSee}
+		where id = #{id}
+	</update>
+	
+</mapper>

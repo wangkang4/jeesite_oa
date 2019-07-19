@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mobile.dailyrecord.dao.CostDao">
+	<sql id="costRecondExcelColumns">
+		c.id AS "id",
+		c.client_name AS "clientName",
+		c.project_name AS "projectName",
+		c.project_money AS "projectMoney",
+		c.use_time AS "useTime",
+		c.travel_expense AS "travelExpense",
+		c.meal_money AS "mealMoney",
+		c.cultural_gifts_person AS "culturalgiftsPerson",
+		c.other_money AS "otherMoney",
+		c.cultural_gifts_compeny AS "culturalgiftsCompeny",
+		c.conment AS "conment",
+		c.type As "type",
+		c.creater_by AS "createrBy.id",
+		c.creater_time AS "createrTime",
+		u.name AS "createrBy.name"
+	</sql>
+	
+	<sql id="userJoins">
+		left join sys_user u on u.id = c.creater_by
+	</sql>
+
+	<select id="findAllCost" resultType="CostRecondExcel">
+		select 
+			<include refid="costRecondExcelColumns"/>
+		from oa_excel_cost c
+			<include refid="userJoins" />
+		where 1=1
+		<if test="createrBy != null and createrBy != ''">
+		    and c.creater_by = #{createrBy.id}
+		</if>
+		<if test="type != null and type != ''">
+		    and c.type = #{type}
+		</if>
+		order by c.use_time desc
+	</select>
+	
+	<select id="getone" resultType="CostRecondExcel" parameterType="String">
+		select 
+			<include refid="costRecondExcelColumns"/>
+		from oa_excel_cost c
+			<include refid="userJoins" />
+		where c.id = #{id}
+	</select>
+
+	<select id="getUser" parameterType="String" resultType="User">
+		select 
+			a.id,
+    		a.office_id AS "office.id",
+    		o.name AS "office.name"
+    	from sys_user a
+    		LEFT JOIN sys_office o ON o.id = a.office_id
+    	where a.id = #{id}	
+	</select>
+</mapper>

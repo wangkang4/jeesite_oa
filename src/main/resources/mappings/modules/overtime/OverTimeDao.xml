@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.overtime.dao.OverTimeDao">
+
+	<sql id="overTimeColumns">
+		a.id,
+		a.proc_ins_id,
+		u.id AS "user.id", 
+		u.name AS "user.name", 
+		o.id AS "office.id", 
+		o.name AS "office.name",
+		a.start_time,
+		a.end_time,
+		a.overtime_type,  
+		a.days,  
+		a.reason,
+		a.status,
+		a.anno, 
+		a.notes,
+		a.pr_text,
+		a.leader_text,
+		a.hr_text,
+		a.create_by AS "createBy.id", 
+		a.create_date, 
+		a.update_by AS "updateBy.id", 
+		a.update_date, 
+		a.remarks, 
+		a.del_flag
+	</sql>
+
+	<sql id="overTimeJoins">
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON o.id=a.office_id
+    </sql>
+
+	<select id="getOfficeNameByUserId" resultType="String">
+		SELECT 
+			so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL}
+		and su.id = #{id}
+	</select>
+
+	<select id="getOfficeByUserId" resultType="Office">
+		SELECT
+			so.id,so.name
+		FROM sys_office so left join sys_user su on so.id=su.office_id
+		WHERE su.id = #{id}
+<!-- 		and so.del_flag = #{DEL_FLAG_NORMAL} and su.del_flag = #{DEL_FLAG_NORMAL} -->
+	</select>
+	<select id="get" resultType="OverTime">
+		SELECT 
+			<include refid="overTimeColumns"/>
+		FROM over_time a
+		<include refid="overTimeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="OverTime">
+		SELECT 
+			<include refid="overTimeColumns"/>
+		FROM over_time a
+		<include refid="overTimeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="anno==0 and user != null and user.id != null and user.id != ''">
+		and a.user_id = #{user.id}
+		</if>
+		<if test="anno!=0">
+		and a.anno=#{anno}
+		and a.status="审核通过"
+		</if>
+<!-- 		and a.user_id = #{id} -->
+<!-- 		<if test="user != null and user.id != null and user.id != ''"> -->
+<!-- 			AND u.id LIKE  -->
+<!-- 					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if> -->
+<!-- 					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if> -->
+<!-- 					<if test="dbName == 'mysql'">CONCAT('%', #{user.id}, '%')</if> -->
+<!-- 		</if> -->
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="OverTime">
+		SELECT 
+			<include refid="overTimeColumns"/>
+		FROM over_time a
+		<include refid="overTimeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+				and a.status="审核通过"
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO over_time(
+			id, 
+			user_id, 
+			office_id, 
+			start_time,
+			end_time,
+			overtime_type,  
+			reason, 
+			status,
+			anno,
+			notes,
+			days, 
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{user.id}, 
+			#{office.id}, 
+			#{startTime},
+			#{endTime},
+			#{overtimeType},
+			#{reason}, 
+			#{status},
+			#{anno},
+			#{notes},
+			#{days}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE over_time SET 
+			user_id = #{user.id}, 
+			office_id = #{office.id},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			overtime_type = #{overtimeType}, 
+			status = #{status},  
+			notes = #{notes},
+			reason = #{reason}, 
+			days = #{days}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updatePrText">
+		UPDATE over_time SET 
+			status=#{status},
+			pr_text = #{prText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeaderText">
+		UPDATE over_time SET 
+			status=#{status},
+			leader_text = #{leaderText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateHrText">
+		UPDATE over_time SET 
+			status=#{status},
+			hr_text = #{hrText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateLeadertwoText">
+		UPDATE over_time SET 
+			status=#{status},
+			leadertwo_text = #{leadertwoText},
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE over_time SET 
+			status="销毁",
+			del_flag = '1'
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getByProcInsId" resultType="OverTime">
+		SELECT 
+			<include refid="overTimeColumns"/>
+		FROM over_time a
+		<include refid="overTimeJoins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+	
+	<select id="getTaskIdByPId"  resultType="String">
+		SELECT 
+			id_
+		FROM
+		 act_ru_task ar  
+		WHERE 
+			proc_inst_id_=#{pid}
+	</select>
+	
+	<select id="monthAll" resultType="OverTime" parameterType="String">
+		SELECT 
+		<include refid="overTimeColumns"/>
+		FROM over_time a
+		<include refid="overTimeJoins"/>
+		WHERE year(start_time)=#{0} AND month(start_time)=#{1} AND status='审核通过'
+	</select>
+	
+</mapper>

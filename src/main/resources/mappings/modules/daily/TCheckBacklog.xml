@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.daily.dao.TCheckBacklogDao">
+
+   <select id="getNum" resultType="Integer">
+   <!-- 查询日报发送时间至第二天中午12点之前截止发送的日报数量 -->
+     select count(creater_time) from t_check_backlog where creater_time BETWEEN DATE_SUB(DATE_FORMAT(creater_time,'%Y-%m-%d 12:00:00'),INTERVAL 1 DAY)
+      AND DATE_FORMAT(creater_time,'%Y-%m-%d 12:00:00')
+    <!--  
+     SELECT * FROM `u_coin_gain_his` WHERE gain_start_time BETWEEN DATE_SUB(DATE_FORMAT(NOW(),'%Y-%m-%d 12:00:00'),INTERVAL 1 DAY)
+      AND DATE_FORMAT(NOW(),'%Y-%m-%d 11:00:00');
+     -->		
+   </select>
+
+	<sql id="TCheckBacklogColumns">
+		c.id AS "id",
+		c.types AS "types",
+		c.prof_id AS "profId",
+		c.user_id AS "user.id",
+		c.creater_id AS "createrId",
+		c.creater_time AS
+		"createrTime",
+
+		c.create_by AS "createBy.id",
+		c.create_date AS
+		"createDate",
+		c.update_by AS "updateBy.id",
+		c.update_date AS
+		"updateDate",
+		c.remarks AS "remarks",
+		c.del_flag AS "delFlag",
+		d.performance AS "successState",
+		d.day_content AS "dayContent",
+		d.plan_content AS "planContent",
+		d.remark AS "remark",
+		
+		u2.name AS "sendName",
+
+		w.day_time AS "weekly.daytime",
+		w.day_content AS "weekly.daycontent",
+		w.plan_content AS "weekly.plancontent"
+	</sql>
+
+	<sql id="TDailyJoins">
+		left join t_daily d on d.id = c.prof_id
+	</sql>
+
+	<sql id="UserJoins">
+		LEFT JOIN sys_user u2 ON u2.id = c.creater_id
+	</sql>
+
+	<sql id="WeeklyJoins">
+		left join t_weekly w on w.id = c.prof_id
+	</sql>
+
+	<select id="findList" resultType="TCheckBacklog">
+		select
+		<include refid="TCheckBacklogColumns" />
+		from t_check_backlog c
+		<include refid="TDailyJoins" />
+		<include refid="UserJoins" />
+		<include refid="WeeklyJoins" />
+		where c.user_id = #{user.id} and c.types = #{types} and c.del_flag = 0
+		<if test="types ==2">
+			and w.del_flag = 0
+		</if>
+		<if test="types ==1">
+			and d.del_flag = 0
+		</if>
+		<if test="createrTime !=null and createrTime != '' and types !=1">
+			and w.day_time = #{createrTime}
+		</if>
+		<if test="createrTime !=null and createrTime != '' and types !=2">
+			and d.day_time = #{createrTime}
+		</if>
+		<if test="createrId != null and createrId !=''">
+			and c.creater_id = #{createrId}
+		</if>
+		ORDER BY c.creater_time desc
+	</select>
+
+	<insert id="insert">
+		insert into t_check_backlog (
+		id,
+		types,
+		prof_id,
+		user_id,
+		creater_id,
+		creater_time,
+
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) values(
+		#{id},
+		#{types},
+		#{profId},
+		#{user.id},
+		#{createrId},
+		#{createrTime},
+
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		update t_check_backlog set
+		prof_id = #{profId},
+		creater_time = #{createrTime}
+		where id = #{id}
+	</update>
+
+	<update id="delete">
+		update t_check_backlog set
+		del_flag =
+		#{DEL_FLAG_DELETE}
+		where prof_id = #{profId}
+	</update>
+
+	<!-- 周报 -->
+
+	<delete id="deleteone" parameterType="String">
+		delete from t_check_backlog
+		where prof_id = #{id}
+	</delete>
+
+	<select id="findone" parameterType="String" resultType="TCheckBacklog">
+		select
+		id,
+		types,
+		prof_id,
+		user_id,
+		creater_id,
+		creater_time,
+
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		from t_check_backlog
+		where user_id = #{user.id}
+	</select>
+
+	<select id="findYstayCount" parameterType="TCheckBacklog" resultType="Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			t_check_backlog c
+		<include refid="TDailyJoins" />
+		<include refid="UserJoins" />
+		<include refid="WeeklyJoins" />
+		WHERE
+			c.user_id = #{user.id} and c.types = #{types} and c.del_flag = 0
+			and d.day_time = #{createrTime}
+	</select>
+
+</mapper>

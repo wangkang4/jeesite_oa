@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.expenseStatistical.dao.ExpenseStatisticalDao">
+	
+	<!-- 统计每种报销类型报销的钱 -->
+	<select id="selectExpenseStatistical" resultType="com.thinkgem.jeesite.modules.expenseStatistical.entity.ExpenseStatistical">
+		SELECT sum(e.amount_money) AS 'money',
+				e.cost_type AS 'costType',
+				g.user_id AS 'user.id',
+				g.office_id AS 'office.id',
+				u.name AS 'user.name',
+				o.name AS 'office.name'
+		FROM get_sale g
+		JOIN expense_detail e ON g.sale_detail_id = e.sale_detail_id
+		JOIN sys_user u ON g.user_id = u.id
+		JOIN sys_office o ON g.office_id = o.id
+		<where>
+			g.statu in("审核通过","已付账")
+			<if test="startTime!=null and startTime!=''">
+				and g.create_date &gt; #{startTime}
+			</if>
+			<if test="endTime!=null and endTime!=''">
+				and g.create_date &lt; #{endTime}
+			</if>
+			<if test="user!=null and user.id!=null and user.id!=''">
+				and g.user_id = #{user.id}
+			</if>
+			<if test="office!=null and office.id!=null and office.id!=''">
+				and g.office_id = #{office.id}
+			</if>
+		</where>
+		group by e.cost_type
+	</select>
+	
+	<!-- 查询一共有哪些报销类型 -->
+	<select id="selectAllCostType" resultType="String">
+		SELECT cost_type
+		FROM expense_type
+	</select>
+	
+	<!-- 统计每种报销描述的钱 -->
+	<select id="selectExpenseDescriptionStatistical" resultType="com.thinkgem.jeesite.modules.expenseStatistical.entity.ExpenseStatistical">
+		SELECT sum(e.amount_money) AS 'money',
+				e.cost_description AS 'costType'
+		FROM get_sale g
+		JOIN expense_detail e ON g.sale_detail_id = e.sale_detail_id
+		JOIN sys_user u ON g.user_id = u.id
+		JOIN sys_office o ON g.office_id = o.id
+		<where>
+			g.statu in("审核通过","已付账")
+			<if test="startTime!=null and startTime!=''">
+				and g.create_date &gt; #{startTime}
+			</if>
+			<if test="endTime!=null and endTime!=''">
+				and g.create_date &lt; #{endTime}
+			</if>
+			<if test="user!=null and user.id!=null and user.id!=''">
+				and g.user_id = #{user.id}
+			</if>
+			<if test="office!=null and office.id!=null and office.id!=''">
+				and g.office_id = #{office.id}
+			</if>
+		</where>
+		group by e.cost_description
+	</select>
+	
+	<!-- 查询一共有哪些报销描述类型 -->
+	<select id="selectAllCostDescription" resultType="com.thinkgem.jeesite.modules.expenseStatistical.entity.TypeAndDescription">
+		SELECT d.cost_description AS 'costDescription',
+				t.cost_type AS 'costType'
+		FROM expense_description d
+		JOIN expense_type t ON d.cost_type_id = t.cost_type_id
+	</select>
+</mapper>
