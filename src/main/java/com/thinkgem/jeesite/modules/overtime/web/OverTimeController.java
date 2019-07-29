@@ -44,7 +44,7 @@ public class OverTimeController extends BaseController {
         overTime.setUser ( UserUtils.getUser () );
         Page<OverTime> page = overTimeService.findPage ( new Page<OverTime> ( request, response ), overTime );
         String loginName = UserUtils.getUser ().getLoginName ();
-        if ("李国强".equals ( loginName ) || "麻青青".equals ( loginName ) || "王涛".equals ( loginName ) || "俞伶群".equals ( loginName )) {
+        if ("李国强".equals ( loginName ) || "麻青青".equals ( loginName ) || "王涛".equals ( loginName ) || "俞伶群".equals ( loginName )||"李晓萌".equals(loginName)) {
             model.addAttribute ( "name", loginName );
         }
         getUrl ( page );
@@ -61,6 +61,11 @@ public class OverTimeController extends BaseController {
             Page<OverTime> page = overTimeService.findAllPage ( new Page<OverTime> ( request, response ), overTime );
             getUrl ( page );
             model.addAttribute ( "page", page );
+        }
+        if("李晓萌".equals(loginName)){
+            Page<OverTime> page =	overTimeService.findAllPage(new Page<OverTime>(request, response),overTime);
+            getUrl(page);
+            model.addAttribute("page", page);
         }
         if ("俞伶群".equals ( loginName )) {
             Page<OverTime> page = overTimeService.findAllPage ( new Page<OverTime> ( request, response ), overTime );

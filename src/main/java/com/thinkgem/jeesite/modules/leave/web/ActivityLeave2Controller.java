@@ -68,7 +68,7 @@ public class ActivityLeave2Controller extends BaseController {
                 act.setUrl ( "form1" );
             }
         }
-        if ("李国强".equals ( userName ) || "麻青青".equals ( userName ) || "王涛".equals ( userName )) {
+        if ("李国强".equals ( userName ) || "麻青青".equals ( userName ) || "王涛".equals ( userName )||"李晓萌".equals(userName)) {
             model.addAttribute ( "name", userName );
         }
         model.addAttribute ( "page", page );
@@ -81,7 +81,7 @@ public class ActivityLeave2Controller extends BaseController {
         User user = UserUtils.getUser ();
         double use = systemService.selectUseOverTimeById ( user );
         String userName = UserUtils.getUser ().getName ();
-        if ("李国强".equals ( userName ) || "麻青青".equals ( userName ) || "王涛".equals ( userName ) || "俞伶群".equals ( userName )) {
+        if ("李国强".equals ( userName ) || "麻青青".equals ( userName ) || "王涛".equals ( userName ) || "俞伶群".equals ( userName )||"李晓萌".equals(userName)) {
             model.addAttribute ( "name", userName );
         }
         String view = "activityLeave2Form";
@@ -136,6 +136,10 @@ public class ActivityLeave2Controller extends BaseController {
         if ("李国强".equals ( userName )) {
             Page<ActivityLeave2> page = activityLeave2Service.findAllPage ( new Page<ActivityLeave2> ( request, response ), activityLeave2 );
             model.addAttribute ( "page", page );
+        }
+        if("李晓萌".equals(userName)){
+            Page<ActivityLeave2> page =activityLeave2Service.findAllPage(new Page<ActivityLeave2>(request, response), activityLeave2);
+            model.addAttribute("page", page);
         }
         if ("俞伶群".equals ( userName )) {
             Page<ActivityLeave2> page = activityLeave2Service.findAllPage ( new Page<ActivityLeave2> ( request, response ), activityLeave2 );

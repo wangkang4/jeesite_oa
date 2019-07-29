@@ -31,6 +31,9 @@
 						if("王涛"==loginName){
 							$("#allList").children().text('华东地区加班汇总');
 						}
+						if("李晓萌"==loginName){
+							$("#allList").children().text('公司人员加班汇总');
+						}
 						
 					});
 			function page(n,s){
@@ -63,6 +66,9 @@
 			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
 		</c:if>
 		<c:if test="${fns:getUser().loginName=='俞伶群'}">
+			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
+		</c:if>
+		<c:if test="${fns:getUser().loginName=='李晓萌'}">
 			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
 		</c:if>
 	</ul>
