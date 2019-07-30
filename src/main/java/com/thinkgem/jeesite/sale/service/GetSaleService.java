@@ -225,7 +225,7 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
             else if (b6) {
                 vars.put("userTask1", UserUtils.getByRoleEnname("thd_fuzhou_xingzheng").get(0));
             } else {
-                return;
+                vars.put("userTask1", UserUtils.getByRoleEnname("thd_jinan_xingzheng").get(0));
             }
             vars.put("userTask2", UserUtils.getByRoleEnname("thd_chuna").get(0));
             if (getSale.getForMoney() > 3000) {
