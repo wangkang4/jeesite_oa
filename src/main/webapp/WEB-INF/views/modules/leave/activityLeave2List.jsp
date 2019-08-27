@@ -23,6 +23,9 @@
 				if("李国强"==loginName){
 					$("#allList").children().text('公司人员请假汇总');
 				}
+				if("方娜"==loginName){
+					$("#allList").children().text('公司人员请假汇总');
+				}
 				if("李晓萌"==loginName){
 					$("#allList").children().text('公司人员请假汇总');
 				}

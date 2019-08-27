@@ -140,9 +140,9 @@ public class ActUtils {
      */
     public static final String[] ACT_EXA_DIRECTOR = new String[]{"傅立秦", "李建", "徐哲军", "刘岩峰", "徐哲军", "马建新", "迟笑甜"};//2.马建新改成徐哲军  将0迟笑甜改为傅立秦，最后面增加迟笑甜
     /**
-     * 行政主管 0-李国强 1-麻青青 2-王涛
+     * 行政主管 0-李国强 1-麻青青 2-王涛 3-方娜
      */
-    public static final String[] ACT_EXA_STRATIVE = new String[]{"李国强", "麻青青", "王涛"};
+    public static final String[] ACT_EXA_STRATIVE = new String[]{"李国强", "麻青青", "王涛","方娜"};
     /**
      * 商务主管 0-谢晨
      */
@@ -162,7 +162,7 @@ public class ActUtils {
     /**
      * 采购行政人员
      */
-    public static final String[] ACT_EXA_PURCHASE1 = new String[]{"李国强", "麻青青", "王涛"};
+    public static final String[] ACT_EXA_PURCHASE1 = new String[]{"李国强", "麻青青", "王涛","方娜"};
     /**
      * 新增人员
      */
@@ -245,7 +245,7 @@ public class ActUtils {
      */
     public static final String[] ACT_EXA_QUIT1 = new String[]{"俞伶群", "王超", "谢晨", "苏绍清", "吴苗苗"};
     public static final String[] ACT_EXA_QUIT2 = new String[]{"麻青青", "王涛"};
-    public static final String[] ACT_EXA_QUIT3 = new String[]{"李国强", "俞伶群"};//离职申请ACT_EXA_QUIT3[1]由高会敏改为郭晓敏--2018-12-3,离职申请ACT_EXA_QUIT3[1]由郭晓敏改为俞伶群--2019-6-17
+    public static final String[] ACT_EXA_QUIT3 = new String[]{"李国强", "俞伶群","方娜"};//离职申请ACT_EXA_QUIT3[1]由高会敏改为郭晓敏--2018-12-3,离职申请ACT_EXA_QUIT3[1]由郭晓敏改为俞伶群--2019-6-17
     public static final String[] ACT_EXA = new String[]{"俞跃舒", "傅立秦"};
     //北京离职申请
     public static final String[] ACT_TB_QUIT1 = new String[]{"QuitBeijing", "tb_quit"};

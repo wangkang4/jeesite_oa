@@ -1,8 +1,12 @@
 package com.thinkgem.jeesite.modules.overtime.web;
 
+import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime;
 import com.thinkgem.jeesite.modules.overtime.entity.OverTime;
 import com.thinkgem.jeesite.modules.overtime.service.OverTimeService;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
@@ -13,10 +17,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -44,7 +50,7 @@ public class OverTimeController extends BaseController {
         overTime.setUser ( UserUtils.getUser () );
         Page<OverTime> page = overTimeService.findPage ( new Page<OverTime> ( request, response ), overTime );
         String loginName = UserUtils.getUser ().getLoginName ();
-        if ("李国强".equals ( loginName ) || "麻青青".equals ( loginName ) || "王涛".equals ( loginName ) || "俞伶群".equals ( loginName )||"李晓萌".equals(loginName)) {
+        if ("李国强".equals ( loginName ) || "麻青青".equals ( loginName ) || "王涛".equals ( loginName ) || "俞伶群".equals ( loginName )||"李晓萌".equals(loginName)||"方娜".equals(loginName)) {
             model.addAttribute ( "name", loginName );
         }
         getUrl ( page );
@@ -58,6 +64,11 @@ public class OverTimeController extends BaseController {
         String loginName = UserUtils.getUser ().getLoginName ();
         model.addAttribute ( "name", loginName );
         if ("李国强".equals ( loginName )) {
+            Page<OverTime> page = overTimeService.findAllPage ( new Page<OverTime> ( request, response ), overTime );
+            getUrl ( page );
+            model.addAttribute ( "page", page );
+        }
+        if ("方娜".equals ( loginName )) {
             Page<OverTime> page = overTimeService.findAllPage ( new Page<OverTime> ( request, response ), overTime );
             getUrl ( page );
             model.addAttribute ( "page", page );
@@ -207,6 +218,37 @@ public class OverTimeController extends BaseController {
         List<OverTime> list = overTimeService.monthAll ( String.valueOf ( y ), String.valueOf ( m ) );
         model.addAttribute ( "list", list );
         return "modules/overtime/overTimeList2";
+    }
+
+    /**
+     * @Description: 导出上个月加班表格
+     * @author: gangzi
+     * @params: [startTime1, endTime1, userId1, response]
+     * @return: java.lang.String
+     * @date: 2019/8/20
+     * @exception:
+     */
+    @ResponseBody
+    @RequestMapping(value = "ExExcel")
+    public String ExportCost(HttpServletResponse response, Model model) {
+        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+        try {
+            String fileName = DateUtils.getDate ("yyyy_MM_dd_") + "上个月加班数据表" + ".xlsx";
+            Calendar cal = Calendar.getInstance ();
+            /*获取当前时间的年份*/
+            int y = cal.get (Calendar.YEAR);
+            /*获取当前时间的上一个月份*/
+            int m = cal.get (Calendar.MONTH);
+            List<DownloadOverTime> list = overTimeService.downList (String.valueOf (y), String.valueOf (m));
+            model.addAttribute ("list", list);
+            new ExportExcel ("上个月加班数据表", DownloadOverTime.class).setDataList (list).write (response, fileName)
+                    .dispose ();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace ();
+        }
+        return "redirect:" + Global.getAdminPath() + "/work/overtime/overTimeList2?repage";
+
     }
 
 }

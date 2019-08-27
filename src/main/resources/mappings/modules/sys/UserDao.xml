@@ -414,7 +414,7 @@
 		FROM sys_user a
 		JOIN sys_user_role sur ON sur.user_id = a.id
 		JOIN sys_role sr ON sr.id = sur.role_id
-		WHERE sr.enname=#{enname}
+		WHERE sr.enname=#{enname} ORDER BY a.create_date desc
 	</select>
 	
 </mapper>

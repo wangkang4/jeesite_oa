@@ -176,12 +176,12 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
          * @update Mr.dong
          * 先判断提交人的直属上级角色
          * 1.如果直属上级是总裁
-         * 	则：提交人--到各地行政助理--到出纳--财务主管|总监--总经理
+         * 	则：提交人--到各地行政助理--到出纳--财务主管|总监--总经理--报销出纳员(只有已付款按钮,方便申请人知悉报销款是否到账)
          * 2.如果直属上级是办事处负责人级别
-         * 	则：提交人--各地行政助理--上级领导--到出纳--财务主管|总监--总经理
+         * 	则：提交人--各地行政助理--上级领导--到出纳--财务主管|总监--总经理--报销出纳员(只有已付款按钮,方便申请人知悉报销款是否到账)
          * 3.如过直属上级是部门级别
-         * 	则提交人--各地行政助理--上级领导的上级--到出纳--财务主管|总监--总经理
-         *  **注意：在到达财务主管节点时，财务主管可将流程转至财务总监审核（userTask6）
+         * 	则提交人--各地行政助理--上级领导的上级--到出纳--财务主管|总监--总经理--报销出纳员(只有已付款按钮,方便申请人知悉报销款是否到账)
+         *  **注意：在到达财务主管节点时，财务主管可将流程转至财务总监审核（userTask7）
          */
 
         /**
@@ -234,6 +234,7 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
                 vars.put("userTask3", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
             }
             vars.put("userTask4", UserUtils.getByRoleEnname("thd_general_manager").get(0));
+            vars.put("userTask5", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
 
         } else if (b_thd) {
             /**获取上级领导名*/
@@ -261,6 +262,7 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
             }
             vars.put("userTask5", UserUtils.getByRoleEnname("thd_general_manager").get(0));
+            vars.put("userTask6", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
 
         } else if (c_thd) {
 
@@ -292,8 +294,9 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
             }
             vars.put("userTask5", UserUtils.getByRoleEnname("thd_general_manager").get(0));
+            vars.put("userTask6", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
         }
-        vars.put("userTask6", UserUtils.getByRoleEnname("thd_caiwuzongjian").get(0));
+        vars.put("userTask7", UserUtils.getByRoleEnname("thd_caiwuzongjian").get(0));
         actTaskService.startProcess(ActUtils.THD_GETSALE[0], ActUtils.THD_GETSALE[1], getSale.getId(),
                 getSale.getReason(), vars);
 
@@ -338,6 +341,7 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
         Boolean thd_d = Arrays.asList(roles).contains("桃花岛财务主管");
         Boolean thd_e = Arrays.asList(roles).contains("桃花岛财务总监");
         Boolean thd_f = Arrays.asList(roles).contains("桃花岛总经理");
+        Boolean thd_g = Arrays.asList(roles).contains("报销出纳员");
         // 对不同环节的业务逻辑进行操作
         if (!"yes".equals(getSale.getAct().getFlag())) {
             getSale.setStatu("驳回");
@@ -347,12 +351,12 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
             getSale.setStatu("审核中");
             getSaleDao.updateStatu(getSale);
         }
-        if ("yes".equals(getSale.getAct().getFlag()) && (thd_c || thd_d || thd_e)) {
+        if ("yes".equals(getSale.getAct().getFlag()) && (thd_c || thd_d || thd_e || thd_f)) {
             getSale.setStatu("审核通过");
             getSaleDao.updateStatu(getSale);
         }
-        if ("yes".equals(getSale.getAct().getFlag()) && thd_f) {
-            getSale.setStatu("同意");
+        if ("yes".equals(getSale.getAct().getFlag()) && thd_g) {
+            getSale.setStatu("已付款");
             getSaleDao.updateStatu(getSale);
             vars.put("agree", "yes".equals(getSale.getAct().getFlag()) ? "3" : "0");
         }
@@ -384,6 +388,7 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
             getSale.setPrtwoText(getSale.getAct().getComment());
             dao.updateprtwoText(getSale);
         }
+        /**桃花岛总经理*/
         if (thd_f) {
             getSale.setPrfiveText(getSale.getAct().getComment());
             dao.updateprfiveText(getSale);

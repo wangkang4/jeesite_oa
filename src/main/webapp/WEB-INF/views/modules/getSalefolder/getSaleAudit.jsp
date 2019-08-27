@@ -328,12 +328,20 @@ function update(){
 			</table>
 		</fieldset>
 		<div class="form-actions">
-			
-			
-				<input id="btnSubmit" class="btn btn-primary" type="submit"
-					value="同 意" onclick="$('#flag').val('yes')" />&nbsp; 
-				<input id="btnSubmit" class="btn btn-inverse" type="submit" 
-					value="驳 回" onclick="$('#flag').val('no')" />&nbsp;
+
+			<c:choose>
+				<c:when test="${fns:getUser().loginName=='报销出纳员'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit"
+						   value="已付款" onclick="$('#flag').val('yes')"/>&nbsp;
+				</c:when>
+				<c:otherwise>
+					<input id="btnSubmit" class="btn btn-primary" type="submit"
+						   value="同 意" onclick="$('#flag').val('yes')" />&nbsp;
+					<input id="btnSubmit" class="btn btn-inverse" type="submit"
+						   value="驳 回" onclick="$('#flag').val('no')" />&nbsp;
+				</c:otherwise>
+			</c:choose>
+
 				<shiro:hasRole name="caiwuzhongnan">
 				<!-- <input id="btnSubmit" class="btn btn-inverse" type="button" 
 					value="修改费用描述" onclick="update()" />&nbsp;

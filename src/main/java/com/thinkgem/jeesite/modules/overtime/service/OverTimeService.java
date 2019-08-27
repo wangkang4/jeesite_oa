@@ -7,6 +7,7 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.overtime.dao.OverTimeDao;
+import com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime;
 import com.thinkgem.jeesite.modules.overtime.entity.OverTime;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
@@ -217,5 +218,17 @@ public class OverTimeService extends CrudService<OverTimeDao, OverTime> {
     @Transactional(readOnly = false)
     public List<OverTime> monthAll(String year, String month) {
         return overTimeDao.monthAll ( year, month );
+    }
+
+    /**
+     * @Description: 导出上个月加班数据列表
+     * @author: gangzi
+     * @params: [overTime]
+     * @return: java.util.List<com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime>
+     * @date: 2019/8/20
+     * @exception:
+     */
+    public List<DownloadOverTime> downList(String year, String month){
+        return overTimeDao.downList(year, month);
     }
 }

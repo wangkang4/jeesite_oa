@@ -2,6 +2,7 @@ package com.thinkgem.jeesite.modules.overtime.dao;
 
 import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
+import com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime;
 import com.thinkgem.jeesite.modules.overtime.entity.OverTime;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 
@@ -31,4 +32,6 @@ public interface OverTimeDao extends CrudDao<OverTime> {
     String getTaskIdByPId(String pid);
 
     List<OverTime> monthAll(String year, String month);
+
+    List<DownloadOverTime> downList(String year, String month);
 }

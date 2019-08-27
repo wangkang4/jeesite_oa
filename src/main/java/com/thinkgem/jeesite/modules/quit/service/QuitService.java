@@ -258,7 +258,8 @@ public class QuitService extends CrudService<QuitDao, Quit> {
 
         if ("李国强".equals ( UserUtils.getUser ().getLoginName () )
                 || "俞伶群".equals ( UserUtils.getUser ().getLoginName () )
-                || "郭晓敏".equals ( UserUtils.getUser ().getLoginName () )) {
+                || "郭晓敏".equals ( UserUtils.getUser ().getLoginName () )
+                || "方娜".equals ( UserUtils.getUser ().getLoginName () )) {
             page.setList ( quitDao.findAllList1 () );
         } else if ("俞跃舒".equals ( UserUtils.getUser ().getLoginName () )) {
             page.setList ( quitDao.findAllList () );

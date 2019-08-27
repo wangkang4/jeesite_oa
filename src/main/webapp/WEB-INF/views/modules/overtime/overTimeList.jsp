@@ -25,6 +25,9 @@
 						if("李国强"==loginName){
 							$("#allList").children().text('公司人员加班汇总');
 						}
+						if("方娜"==loginName){
+							$("#allList").children().text('公司人员加班汇总');
+						}
 						if("麻青青"==loginName){
 							$("#allList").children().text('济南市场加班汇总');
 						}
@@ -63,13 +66,16 @@
 			<li id="allList"><a href="${ctx}/work/overtime/allList">人员加假列表</a></li>
 		</c:if>
 		<c:if test="${fns:getUser().loginName=='李国强'}">
-			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
+			<li><a href="${ctx}/work/overtime/overTimeList2">上个月加班情况</a></li>
+		</c:if>
+		<c:if test="${fns:getUser().loginName=='方娜'}">
+			<li><a href="${ctx}/work/overtime/overTimeList2">上个月加班情况</a></li>
 		</c:if>
 		<c:if test="${fns:getUser().loginName=='俞伶群'}">
-			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
+			<li><a href="${ctx}/work/overtime/overTimeList2">上个月加班情况</a></li>
 		</c:if>
 		<c:if test="${fns:getUser().loginName=='李晓萌'}">
-			<li><a href="${ctx}/work/overtime/overTimeList2">本月加班情况</a></li>
+			<li><a href="${ctx}/work/overtime/overTimeList2">上个月加班情况</a></li>
 		</c:if>
 	</ul>
 	<sys:message content="${message}"/>

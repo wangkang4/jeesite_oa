@@ -42,7 +42,7 @@ function rollback(){
 	<ul class="nav nav-tabs">
 		<li><a href="${ctx}/tb/quit/list">离职申请列表</a></li>				
 		<li class="active"><a href="">申请详情</a></li>	
-		<c:if test="${fns:getUser().loginName=='俞跃舒' || fns:getUser().loginName=='李国强'||fns:getUser().loginName=='高会敏'}">
+		<c:if test="${fns:getUser().loginName=='俞跃舒' || fns:getUser().loginName=='李国强'||fns:getUser().loginName=='高会敏'||fns:getUser().loginName=='方娜'}">
 			<li class=""><a href="${ctx}/tb/quit/list2">全体员工离职列表</a></li>
 		</c:if>
 	</ul>

@@ -213,5 +213,18 @@
 		<include refid="overTimeJoins"/>
 		WHERE year(start_time)=#{0} AND month(start_time)=#{1} AND status='审核通过'
 	</select>
+
+	<select id="downList" resultType="com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime" parameterType="String">
+		SELECT
+		u.name AS userName,
+		o.name AS officeName,
+		SUM(a.days) AS days
+		FROM over_time a
+		JOIN sys_user u ON u.id=a.user_id
+		JOIN sys_office o ON o.id=a.office_id
+		WHERE year(start_time)=#{0} AND month(start_time)=#{1} AND status='审核通过'
+		GROUP BY u.name
+		ORDER BY days desc
+	</select>
 	
 </mapper>
