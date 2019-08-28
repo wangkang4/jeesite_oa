@@ -100,8 +100,9 @@
 		</fieldset>
 		<div class="form-actions">
 			<input id="btnSubmit" class="btn btn-primary" type="submit"
-				value="同 意" onclick="$('#flag').val('yes')" />&nbsp; 
-			<c:if test="${fns:getUser().loginName == '谢晨'}">
+				value="同 意" onclick="$('#flag').val('yes')" />&nbsp;
+			<%--2019.8.28由谢晨改为马建新--%>
+			<c:if test="${fns:getUser().loginName == '马建新'}">
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="转至市场营销总经理"
 				onclick="$('#flag').val('major')" />&nbsp;
 			</c:if>

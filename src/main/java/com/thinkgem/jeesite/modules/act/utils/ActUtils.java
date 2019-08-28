@@ -144,9 +144,9 @@ public class ActUtils {
      */
     public static final String[] ACT_EXA_STRATIVE = new String[]{"李国强", "麻青青", "王涛","方娜"};
     /**
-     * 商务主管 0-谢晨
+     * 商务主管 0-马建新
      */
-    public static final String[] ACT_EXA_BUSINESS = new String[]{"谢晨"};
+    public static final String[] ACT_EXA_BUSINESS = new String[]{"马建新"};//2019.8.28由谢晨改为马建新
     /**
      * 研发总监 0-傅立秦
      */
@@ -158,7 +158,7 @@ public class ActUtils {
     /**
      * 采购申请部门领导
      */
-    public static final String[] ACT_EXA_PURCHASE = new String[]{"傅立秦", "谢晨", "傅立秦", "迟笑甜"};//将2迟笑甜改为傅立秦，最后面增加迟笑甜
+    public static final String[] ACT_EXA_PURCHASE = new String[]{"傅立秦", "马建新", "傅立秦", "迟笑甜"};//将2迟笑甜改为傅立秦，最后面增加迟笑甜,2019.8.28由谢晨改为马建新
     /**
      * 采购行政人员
      */
@@ -166,7 +166,7 @@ public class ActUtils {
     /**
      * 新增人员
      */
-    public static final String[] ACT_EXA_ADD = new String[]{"陈璟"};
+    public static final String[] ACT_EXA_ADD = new String[]{"陈璟","谢晨"};//2019.8.27 陈璟的角色权限赋给谢晨
 
     /**
      * 高层人员，用于领导流程判断
@@ -239,11 +239,11 @@ public class ActUtils {
     /**
      * 领导层
      */
-    public static final String[] ACT_EXA_QUIT = new String[]{"傅立秦", "傅立秦", "李建", "徐哲军", "刘岩峰", "徐哲军", "谢晨", "高会敏", "王丙磊", "迟笑甜"};//3.马建新改成徐哲军 ； 将1迟笑甜改为傅立秦，最后面增加迟笑甜
+    public static final String[] ACT_EXA_QUIT = new String[]{"傅立秦", "傅立秦", "李建", "徐哲军", "刘岩峰", "徐哲军", "马建新", "高会敏", "王丙磊", "迟笑甜"};//3.马建新改成徐哲军 ； 将1迟笑甜改为傅立秦，最后面增加迟笑甜,2019.8.28由谢晨改为马建新
     /**
      *
      */
-    public static final String[] ACT_EXA_QUIT1 = new String[]{"俞伶群", "王超", "谢晨", "苏绍清", "吴苗苗"};
+    public static final String[] ACT_EXA_QUIT1 = new String[]{"俞伶群", "王超", "马建新", "苏绍清", "吴苗苗"};//2019.8.28由谢晨改为马建新
     public static final String[] ACT_EXA_QUIT2 = new String[]{"麻青青", "王涛"};
     public static final String[] ACT_EXA_QUIT3 = new String[]{"李国强", "俞伶群","方娜"};//离职申请ACT_EXA_QUIT3[1]由高会敏改为郭晓敏--2018-12-3,离职申请ACT_EXA_QUIT3[1]由郭晓敏改为俞伶群--2019-6-17
     public static final String[] ACT_EXA = new String[]{"俞跃舒", "傅立秦"};

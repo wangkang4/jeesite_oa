@@ -147,7 +147,8 @@
 	<!-- 收款通知弹框信息 -->
 	<script type="text/javascript">
 		$(document).ready(function(){
-			if($("#loginName1").val()=="谢晨"||$("#loginName1").val()=="俞林伟"||$("#loginName2").val()=="财务部"){
+			/*2019.8.28由谢晨改为马建新*/
+			if($("#loginName1").val()=="马建新"||$("#loginName1").val()=="俞林伟"||$("#loginName2").val()=="财务部"){
 				find();
 			}
 		})

@@ -10,9 +10,10 @@
 <body>
 	<ul class="nav nav-tabs">
 		 <li><a href="${ctx}/tb/receiptNotice/list">收款通知列表</a></li> 
-		<li class="active"><a href="#">收款填写</a></li>		
+		<li class="active"><a href="#">收款填写</a></li>
+		<%--2019.8.28由谢晨改为马建新--%>
 		<c:if test="${fns:getUser().loginName=='俞林伟'
-			||fns:getUser().loginName=='谢晨'
+			||fns:getUser().loginName=='马建新'
 			||receiptNotice.office.name=='财务部'}">
 		<li><a href="${ctx}/tb/receiptNotice/list2">员工收款通知列表</a></li>
 		</c:if>
