@@ -228,11 +228,13 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
                 vars.put("userTask1", UserUtils.getByRoleEnname("thd_jinan_xingzheng").get(0));
             }
             vars.put("userTask2", UserUtils.getByRoleEnname("thd_chuna").get(0));
-            if (getSale.getForMoney() > 3000) {
+            /*if (getSale.getForMoney() > 3000) {
                 vars.put("userTask3", UserUtils.getByRoleEnname("thd_caiwuzongjian").get(0));
             } else {
                 vars.put("userTask3", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
-            }
+            }*/
+            //2019.8.28由于郭晓敏离职,现将郭晓敏的财务主管角色转移添加至财务总监俞伶群
+            vars.put ("userTask3", UserUtils.getByRoleEnname ("thd_caiwuzongjian").get (0));
             vars.put("userTask4", UserUtils.getByRoleEnname("thd_general_manager").get(0));
             vars.put("userTask5", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
 
@@ -256,11 +258,13 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
             }
             vars.put("userTask2", leaderName);
             vars.put("userTask3", UserUtils.getByRoleEnname("thd_chuna").get(0));
-            if (getSale.getForMoney() > 3000) {
+            /*if (getSale.getForMoney() > 3000) {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzongjian").get(0));
             } else {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
-            }
+            }*/
+            //2019.8.28由于郭晓敏离职,现将郭晓敏的财务主管角色转移添加至财务总监俞伶群
+            vars.put ("userTask4", UserUtils.getByRoleEnname ("thd_caiwuzongjian").get (0));
             vars.put("userTask5", UserUtils.getByRoleEnname("thd_general_manager").get(0));
             vars.put("userTask6", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
 
@@ -288,11 +292,13 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
             }
             vars.put("userTask2", leader_leader);
             vars.put("userTask3", UserUtils.getByRoleEnname("thd_chuna").get(0));
-            if (getSale.getForMoney() > 3000) {
+            /*if (getSale.getForMoney() > 3000) {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzongjian").get(0));
             } else {
                 vars.put("userTask4", UserUtils.getByRoleEnname("thd_caiwuzhuguan").get(0));
-            }
+            }*/
+            //2019.8.28由于郭晓敏离职,现将郭晓敏的财务主管角色转移添加至财务总监俞伶群
+            vars.put ("userTask4", UserUtils.getByRoleEnname ("thd_caiwuzongjian").get (0));
             vars.put("userTask5", UserUtils.getByRoleEnname("thd_general_manager").get(0));
             vars.put("userTask6", UserUtils.getByRoleEnname("thd_getsalechuna").get(0));
         }

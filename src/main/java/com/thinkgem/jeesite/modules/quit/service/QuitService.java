@@ -200,7 +200,9 @@ public class QuitService extends CrudService<QuitDao, Quit> {
                 return;
             }
             vars.put ( "userTask3", UserUtils.getByRoleEnname ( "thd_renshi" ).get ( 0 ) );
-            vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzhuguan" ).get ( 0 ) );
+            /*vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzhuguan" ).get ( 0 ) );*/
+            //2019.8.28由于郭晓敏离职,现将郭晓敏的财务主管角色转移添加至财务总监俞伶群
+            vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzongjian" ).get ( 0 ) );
         } else if (thd_c) {
             /**获取上级的上级领导姓名*/
             String leader_leader = UserUtils.get ( UserUtils.get ( leaderId ).getLeader () ).getName ();
@@ -224,7 +226,9 @@ public class QuitService extends CrudService<QuitDao, Quit> {
                 return;
             }
             vars.put ( "userTask3", UserUtils.getByRoleEnname ( "thd_renshi" ).get ( 0 ) );
-            vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzhuguan" ).get ( 0 ) );
+            /*vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzhuguan" ).get ( 0 ) );
+            2019.8.28由于郭晓敏离职,现将郭晓敏的财务主管角色转移添加至财务总监俞伶群*/
+            vars.put ( "userTask4", UserUtils.getByRoleEnname ( "thd_caiwuzongjian" ).get ( 0 ) );
         }
 
         actTaskService.startProcess ( ActUtils.THD_QUIT[0], ActUtils.THD_QUIT[1], quit.getId (),
