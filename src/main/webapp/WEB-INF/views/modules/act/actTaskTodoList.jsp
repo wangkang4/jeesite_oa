@@ -70,6 +70,35 @@
 				$('#contentTable tr').show();//当删除文本框的内容时，又重新显示表格所有内容
 			}
 		},100);
+
+		function checkAll() {
+			var a = document.getElementById("checkall").checked;
+			var b = document.getElementsByName("checkone");
+			if (a){
+				for (var i = 0; i < b.length; i++) {
+					b[i].checked = true;
+				}
+			} else {
+				for (var i = 0; i < b.length; i++) {
+					b[i].checked = false;
+				}
+			}
+		}
+
+		function checkOne() {
+			var selFlag=true;
+			$("#actTask input[type='checkbox']")
+					.each(function(){
+						selFlag=selFlag&&$(this).prop("checked");
+					});
+			//2.设置thead中checkbox状态值为flag
+			$("#checkall").prop("checked",selFlag);
+		}
+		// function singleOne() {
+		// 	var flag = $(this).prop("checked");
+		// 	$("#checkall input[type = 'checkbox']").prop("checked",flag);
+		// }
+
 	</script>
 </head>
 <body>
@@ -121,7 +150,7 @@
 			<tr>
 			   <!--  <th>姓名</th>
 			    <th>部门</th> -->
-			    <th style="text-align:center;">选择</th>
+			    <th style="text-align:center;"><input type="checkbox" id="checkall" onclick="checkAll()"/>选择</th>
 				<th style="text-align:center;">标题</th>
 				<th style="text-align:center;">当前环节</th>
 				<!-- <th>任务内容</th> -->
@@ -132,7 +161,7 @@
 				<th style="text-align:center;">操作</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="actTask">
 			<c:forEach items="${list}" var="act">
 				<c:set var="task" value="${act.task}" />
 				<c:set var="vars" value="${act.vars}" />
@@ -141,7 +170,7 @@
 				<c:set var="status" value="${act.status}" />
 				<tr>
 				   	<td style="text-align:center;">
-				   		<input type="checkbox" class="agree" value="${task.id},${task.taskDefinitionKey},${task.processInstanceId},${task.processDefinitionId}">
+				   		<input type="checkbox" name="checkone" id="single" class="agree" onclick="checkOne()" value="${task.id},${task.taskDefinitionKey},${task.processInstanceId},${task.processDefinitionId}">
 				   	</td>
 					<td style="text-align:center;">
 						<c:if test="${empty task.assignee}">
