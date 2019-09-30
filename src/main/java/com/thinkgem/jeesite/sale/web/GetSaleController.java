@@ -864,6 +864,7 @@ public class GetSaleController extends BaseController {
             if (StringUtils.isNotBlank(endTime1)) {
                 getSale.setEt(sdf.parse(endTime1 + " 23:59:59"));
             }
+            String userId = null;
             if (StringUtils.isNotBlank(userId1)) {
                 User user = new User();
                 user.setId(userId1);

@@ -467,5 +467,6 @@ public class GetSaleService extends CrudService<GetSaleDao, GetSale> {
      **/
     public List<DownloadGetSale> downList(GetSale getSale) {
         return getSaleDao.downList(getSale);
+//        return getSaleDao.findCWPage(getSale);
     }
 }

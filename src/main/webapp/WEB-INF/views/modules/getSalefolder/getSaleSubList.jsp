@@ -14,10 +14,10 @@
 			function downloadGetSale(){
 				var startTime1 = $("#startTime1").val();
 				var endTime1 = $("#endTime1").val();
-				var userId1 = $("#userId1").val();
+				var userId = $("#userId").val();
 				location.href = "${ctx}/get/sale/ExExcel?startTime1="+startTime1
 						+ "&endTime1="+endTime1
-						+ "&userId1="+userId1;
+						+ "&userId1="+userId;
 			}
 
 

@@ -154,6 +154,16 @@
 			LEFT JOIN sys_user AS u ON u.id = a.user_id
         	LEFT JOIN sys_office AS o ON o.id = u.office_id
 			LEFT JOIN sys_area AS sa ON sa.id = o.area_id
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="st != null and st != ''">
+			and a.create_date &gt; #{st}
+		</if>
+		<if test="et != null and et != ''">
+			and a.create_date &lt; #{et}
+		</if>
+		<if test="user != null and user.id != null and user.id != ''">
+			and a.user_id = #{user.id}
+		</if>
 		ORDER BY a.create_date DESC
 	</select>
 
