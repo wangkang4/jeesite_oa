@@ -24,6 +24,7 @@ public class InvoiceApplyService extends CrudService<InvoiceApplyDao, InvoiceApp
     @Autowired
     private InvoiceApplyDao invoiceApplyDao;
 
+
     @Transactional(readOnly = false)
     public Page<InvoiceApply> findPages(Page<InvoiceApply> page, InvoiceApply invoiceApply) {
         invoiceApply.setPage ( page );
