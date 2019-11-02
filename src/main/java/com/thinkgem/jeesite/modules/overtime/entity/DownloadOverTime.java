@@ -21,6 +21,10 @@ public class DownloadOverTime extends DataEntity<DownloadOverTime> {
     private String userName;
     /**部门*/
     private String officeName;
+    /**上个月日常加班时间*/
+    private String dailyOverTime;
+    /**上个月假日加班时间*/
+    private String holidayOverTime;
     /**上个月总加班时间*/
     private String days;
 
@@ -43,11 +47,27 @@ public class DownloadOverTime extends DataEntity<DownloadOverTime> {
     }
 
 
-    @ExcelField(title = "加班总时间", sort = 30)
+    @ExcelField(title = "日常加班", sort = 30)
+    public String getDailyOverTime() {
+        return dailyOverTime;
+    }
+
+    public void setDailyOverTime(String dailyOverTime) {
+        this.dailyOverTime = dailyOverTime;
+    }
+    @ExcelField(title = "假日加班", sort = 40)
+    public String getHolidayOverTime() {
+        return holidayOverTime;
+    }
+
+    public void setHolidayOverTime(String holidayOverTime) {
+        this.holidayOverTime = holidayOverTime;
+    }
+
+    @ExcelField(title = "加班总时间", sort = 50)
     public String getDays() {
         return days;
     }
-
     public void setDays(String days) {
         this.days = days;
     }

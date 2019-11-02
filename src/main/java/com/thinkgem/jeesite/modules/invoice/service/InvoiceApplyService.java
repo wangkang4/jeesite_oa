@@ -37,7 +37,8 @@ public class InvoiceApplyService extends CrudService<InvoiceApplyDao, InvoiceApp
 
         if ("俞伶群".equals ( UserUtils.getUser ().getName () )
                 || "李晓萌".equals ( UserUtils.getUser ().getName () )
-                || "郭晓敏".equals ( UserUtils.getUser ().getName () )) {
+                || "郭晓敏".equals ( UserUtils.getUser ().getName () )
+                || "麻青青".equals ( UserUtils.getUser ().getName () )) {
             page.setList ( invoiceApplyDao.findAllList1 () );
         } else {
             page.setList ( invoiceApplyDao.findAllList ( invoiceApply.getUser ().getId () ) );

@@ -45,7 +45,28 @@
 					}
 				});
 			}
-			
+
+			function selAll() {
+				var sa = document.getElementById("checkAll").checked;
+				var so = document.getElementsByName("checkOne");
+				if (sa){
+					for (var i = 0; i < so.length ; i++) {
+						so[i].checked = true;
+					}
+				} else{
+					for (var i = 0; i < so.length ; i++) {
+						so[i].checked = false;
+					}
+				}
+			}
+
+			function selOne(){
+				var flag = true ;
+				$("#historyTask input[type=checkbox]").each(function () {
+					flag = flag && $(this).prop("checked");
+				})
+				$("#checkAll").prop("checked",flag);
+			}
 	</script>
 </head>
 <body>
@@ -87,7 +108,7 @@
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
-				<th>选中</th>
+				<th><input type="checkbox" id="checkAll" onclick="selAll()"/>选中</th>
 				<th>姓名</th>
 				<th>公司</th>
 				<th>部门</th>
@@ -99,11 +120,11 @@
 				<th>操作</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="historyTask">
 		<c:forEach items="${page.list}" var="getSale">
 			<tr>
 				<td style="text-align:center;">
-				   	<input type="checkbox" class="print" value="${getSale.id}">
+				   	<input type="checkbox" name="checkOne" onclick="selOne()" class="print" value="${getSale.id}">
 				</td>
 				<td><a href="${ctx}/get/sale/form?id=${getSale.id}">${getSale.user.name}</a></td>
 				<td>${getSale.ename}</td>

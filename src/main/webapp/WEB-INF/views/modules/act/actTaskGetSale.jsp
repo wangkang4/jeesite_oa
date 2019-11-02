@@ -54,6 +54,26 @@
 				}
 			});
 		}
+		function selAll() {
+			var sa = document.getElementById("checkAll").checked;
+			var so = document.getElementsByName("checkOne");
+			if (sa){
+				for (var i = 0; i < so.length; i++) {
+					so[i].checked = true;
+				}
+			} else {
+				for (var i = 0; i < so.length; i++) {
+					so[i].checked = false;
+				}
+			}
+		}
+		function selOne() {
+			var flag = true ;
+			$("#actTask input[type='checkbox']").each(function () {
+				flag = flag && $(this).prop("checked")
+			})
+			$("#checkAll").prop("checked",flag);
+		}
 	</script>
 </head>
 <body>
@@ -92,7 +112,7 @@
 			<tr>
 			   <!--  <th>姓名</th>
 			    <th>部门</th> -->
-			    <th style="text-align:center;">选择</th>
+			    <th style="text-align:center;"><input type="checkbox" onclick="selAll()" id="checkAll">选择</th>
 				<th style="text-align:center;">标题</th>
 				<th style="text-align:center;">当前环节</th>
 				<!-- <th>任务内容</th> -->
@@ -103,7 +123,7 @@
 				<th style="text-align:center;">操作</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id = "actTask">
 			<c:forEach items="${list}" var="act">
 				<c:set var="task" value="${act.task}" />
 				<c:set var="vars" value="${act.vars}" />
@@ -112,7 +132,7 @@
 				<c:set var="status" value="${act.status}" />
 				<tr>
 				   	<td style="text-align:center;">
-				   		<input type="checkbox" class="agree" value="${task.id},${task.taskDefinitionKey},${task.processInstanceId},${task.processDefinitionId}">
+				   		<input type="checkbox" name="checkOne" onclick="selOne()" class="agree" value="${task.id},${task.taskDefinitionKey},${task.processInstanceId},${task.processDefinitionId}">
 				   	</td>
 					<td style="text-align:center;">
 						<c:if test="${empty task.assignee}">

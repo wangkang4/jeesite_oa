@@ -134,7 +134,8 @@ public class ActUtils {
     /**
      * 部门经理 0-王超  1-苏绍清
      */
-    public static final String[] ACT_EXA_DEPART = new String[]{"王超", "苏绍清"};
+    //2019.9.30 16:39 添加李燕
+    public static final String[] ACT_EXA_DEPART = new String[]{"王超", "苏绍清","李燕"};
     /**
      * 主管 0-迟笑甜 1-李建 2-马建新 3-刘岩峰 4-徐哲军
      */
@@ -198,7 +199,8 @@ public class ActUtils {
     //加班流程；
     public static final String[] ACT_OVER_TIME = new String[]{"workOverTime", "over_time"};
     //加班直接到二级审核人名单
-    public static final String[] ACT_EXA_TIME = new String[]{"王超", "杨连群", "陈岩", "李陈", "毕越", "李冠卿"};
+    //2019.9.30 添加李燕
+    public static final String[] ACT_EXA_TIME = new String[]{"李燕", "王超", "杨连群", "陈岩", "李陈", "毕越", "李冠卿"};
 
     //请假流程其中最后一个为表名,其他为流程标识
     public static final String[] ACT_LEAVE_ARR = new String[]{"HFLeave", "JNLeave", "HFMarketLeave"
@@ -243,7 +245,8 @@ public class ActUtils {
     /**
      *
      */
-    public static final String[] ACT_EXA_QUIT1 = new String[]{"俞伶群", "王超", "马建新", "苏绍清", "吴苗苗"};//2019.8.28由谢晨改为马建新
+    //2019.9.30 添加李燕
+    public static final String[] ACT_EXA_QUIT1 = new String[]{"李燕","俞伶群", "王超", "马建新", "苏绍清", "吴苗苗"};//2019.8.28由谢晨改为马建新
     public static final String[] ACT_EXA_QUIT2 = new String[]{"麻青青", "王涛"};
     public static final String[] ACT_EXA_QUIT3 = new String[]{"李国强", "俞伶群","方娜"};//离职申请ACT_EXA_QUIT3[1]由高会敏改为郭晓敏--2018-12-3,离职申请ACT_EXA_QUIT3[1]由郭晓敏改为俞伶群--2019-6-17
     public static final String[] ACT_EXA = new String[]{"俞跃舒", "傅立秦"};
@@ -264,7 +267,8 @@ public class ActUtils {
      */
     public static final String[] ACT_TB_TRAVEL = new String[]{"travelApply1", "travelApply2", "tb_travel"};//0:研发，1：非研发
     //出差申请中研发只需一级审批的人员
-    public static final String[] ACT_EXA_TRAVEL = new String[]{"王超", "杨连群", "柏涛", "陈岩", "王丙磊", "李陈", "毕越", "苏绍清", "田学武", "李冠卿", "傅立秦"};
+    //2019.9.30 添加李燕
+    public static final String[] ACT_EXA_TRAVEL = new String[]{"李燕", "王超", "杨连群", "柏涛", "陈岩", "王丙磊", "李陈", "毕越", "苏绍清", "田学武", "李冠卿", "傅立秦"};
 
     @SuppressWarnings({"unused"})
     public static Map<String, Object> getMobileEntity(Object entity, String spiltType) {

@@ -26,7 +26,7 @@
         }, 100);
 
         function downloadOverTime() {
-            var userId1 = $("#userId1").val();
+            var userId1 = $("#input").val();
             location.href = "${ctx}/work/overtime/ExExcel?userId1=" + userId1;
         }
     </script>

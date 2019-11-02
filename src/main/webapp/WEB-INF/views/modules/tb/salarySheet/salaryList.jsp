@@ -62,6 +62,7 @@
 	</tr>
 	<tr>
 		<th rowspan="2" align="center">基本工资</th>
+		<th rowspan="2" align="center">加班工资</th>
 		<th rowspan="2" align="center">电脑补助</th>
 		<th rowspan="2" align="center">奖金/罚款</th>
 		<th rowspan="2" align="center">交通补助</th>

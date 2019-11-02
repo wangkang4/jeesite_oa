@@ -228,7 +228,7 @@ public class OverTimeService extends CrudService<OverTimeDao, OverTime> {
      * @date: 2019/8/20
      * @exception:
      */
-    public List<DownloadOverTime> downList(String year, String month){
-        return overTimeDao.downList(year, month);
+    public List<DownloadOverTime> downList(String year, String month, String userId1){
+        return overTimeDao.downList(year, month, userId1);
     }
 }

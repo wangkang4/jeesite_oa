@@ -218,11 +218,22 @@
 		SELECT
 		u.name AS userName,
 		o.name AS officeName,
-		SUM(a.days) AS days
+		SUM(a.days) AS days,
+		e.dailyOverTime,
+		e.holidayOverTime
 		FROM over_time a
 		JOIN sys_user u ON u.id=a.user_id
 		JOIN sys_office o ON o.id=a.office_id
+		LEFT JOIN (SELECT user_id AS userId,
+		           	SUM(CASE WHEN f.overtime_type = "日常加班" THEN f.days ELSE 0 END) AS dailyOverTime,
+					SUM(CASE WHEN f.overtime_type = "假日加班" THEN f.days ELSE 0 END) AS holidayOverTime
+					FROM over_time f
+		           	WHERE year(start_time)=#{0} AND month(start_time)=#{1} AND status='审核通过'
+		    		GROUP BY user_id) AS e ON e.userId = a.user_id
 		WHERE year(start_time)=#{0} AND month(start_time)=#{1} AND status='审核通过'
+		<if test="userId1 != null and userId1 != ''">
+		AND u.name = #{userId1}
+		</if>
 		GROUP BY u.name
 		ORDER BY days desc
 	</select>

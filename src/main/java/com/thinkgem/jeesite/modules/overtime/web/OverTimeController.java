@@ -230,7 +230,7 @@ public class OverTimeController extends BaseController {
      */
     @ResponseBody
     @RequestMapping(value = "ExExcel")
-    public String ExportCost(HttpServletResponse response, Model model) {
+    public String ExportCost(HttpServletResponse response, String userId1, Model model) {
         SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
         try {
             String fileName = DateUtils.getDate ("yyyy_MM_dd_") + "上个月加班数据表" + ".xlsx";
@@ -239,7 +239,8 @@ public class OverTimeController extends BaseController {
             int y = cal.get (Calendar.YEAR);
             /*获取当前时间的上一个月份*/
             int m = cal.get (Calendar.MONTH);
-            List<DownloadOverTime> list = overTimeService.downList (String.valueOf (y), String.valueOf (m));
+
+            List<DownloadOverTime> list = overTimeService.downList (String.valueOf (y), String.valueOf (m), userId1);
             model.addAttribute ("list", list);
             new ExportExcel ("上个月加班数据表", DownloadOverTime.class).setDataList (list).write (response, fileName)
                     .dispose ();

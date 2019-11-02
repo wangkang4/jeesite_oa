@@ -5,6 +5,7 @@ import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.overtime.entity.DownloadOverTime;
 import com.thinkgem.jeesite.modules.overtime.entity.OverTime;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -33,5 +34,5 @@ public interface OverTimeDao extends CrudDao<OverTime> {
 
     List<OverTime> monthAll(String year, String month);
 
-    List<DownloadOverTime> downList(String year, String month);
+    List<DownloadOverTime> downList(String year, String month, @Param("userId1") String userId1);
 }
